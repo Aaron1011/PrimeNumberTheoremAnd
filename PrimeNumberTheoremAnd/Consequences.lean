@@ -1853,7 +1853,7 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
   refine ⟨?_, ?_⟩
   .
     obtain ⟨k, k_o1, p_n_eq⟩ := pn_asymptotic
-    simp [p_n_eq]
+    simp only [p_n_eq, cast_add, cast_one, isLittleO_one_iff]
     simp_rw [sub_div]
     have zero_eq_minus: (0 : ℝ) = 1 - 1 := by
       simp
@@ -1867,16 +1867,13 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
           field_simp
           rw [mul_assoc]
           rw [mul_assoc]
-      have one_mul: (1: ℝ) = 1 * 1 := by simp
-      have one_add: (1: ℝ) = 1 + 0 := by simp
-      rw [one_mul]
+      nth_rw 6 [← (one_mul 1)]
       apply Filter.Tendsto.mul
       .
         have one_div: nhds 1 = nhds ((1: ℝ) / 1) := by simp
         rw [one_div]
         apply Filter.Tendsto.div
-        . simp
-          rw [one_add]
+        . nth_rw 3 [← (AddMonoid.add_zero 1)]
           apply Filter.Tendsto.add
           . simp
           .
@@ -1887,8 +1884,7 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
               exact k_o1
             . simp
         .
-          simp
-          rw [one_add]
+          nth_rw 2 [← (AddMonoid.add_zero 1)]
           apply Filter.Tendsto.add
           . simp
           . rw [Asymptotics.isLittleO_iff_tendsto] at k_o1
@@ -1898,25 +1894,22 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
             . simp
 
         simp
-      . simp
-        conv =>
+      . conv =>
           arg 1
           intro x
           equals ((↑x + 1) / x) * (log (↑x + 1) / (log ↑x)) =>
             field_simp
-        rw [one_mul]
+        nth_rw 3 [← (one_mul 1)]
         apply Filter.Tendsto.mul
-        . simp
-          simp_rw [← div_add_div_same]
-          rw [one_add]
+        . simp_rw [← div_add_div_same]
+          nth_rw 2 [← (AddMonoid.add_zero 1)]
           apply Filter.Tendsto.add
           .
             rw [← Filter.tendsto_add_atTop_iff_nat 1]
             field_simp
-          . simp
+          . simp only [one_div]
             exact tendsto_inverse_atTop_nhds_zero_nat
-        . simp
-          have log_eq: ∀ (n: ℕ), log (↑n + 1) = log ↑n + log (1 + 1/n) := by
+        . have log_eq: ∀ (n: ℕ), log (↑n + 1) = log ↑n + log (1 + 1/n) := by
             intro n
             by_cases n_eq_zero: n = 0
             . simp [n_eq_zero]
@@ -1931,14 +1924,8 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
                   norm_cast
 
           simp_rw [log_eq]
-          conv =>
-            arg 3
-            arg 1
-            equals 1 + 0 =>
-              simp
-
-
           simp_rw [← div_add_div_same]
+          nth_rw 3 [← (AddMonoid.add_zero 1)]
           apply Filter.Tendsto.add
           . rw [← Filter.tendsto_add_atTop_iff_nat 2]
             have log_not_zero: ∀ n: ℕ, log (n + 2) ≠ 0 := by
@@ -1954,14 +1941,12 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
             rw [← Filter.tendsto_add_atTop_iff_nat 2]
             apply squeeze_zero (g := fun (n: ℕ) => (log 2 / log (n + 2)))
             . intro n
-              have log_nonzero: 0 ≤ log ↑(n + 2) :=by
-                exact log_natCast_nonneg (n + 2)
               have log_plus_nonzero: 0 ≤ log (1 + 1 / ↑(n + 2)) := by
                 apply log_nonneg
                 simp
                 norm_cast
                 simp
-              exact div_nonneg log_plus_nonzero log_nonzero
+              exact div_nonneg log_plus_nonzero (log_natCast_nonneg (n + 2))
             . intro n
               norm_cast
               have log_le_2: log (1 + 1 / ↑(n + 2)) ≤ log 2 := by
@@ -2039,18 +2024,12 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
       conv =>
         arg 1
         intro n
-        equals 1 =>
-          have foo := div_self (denom_nonzero n)
-          rw [foo]
-
-
+        rw [div_self (denom_nonzero n)]
       simp
   .
     intro n
-    have nth_is_prime: Nat.Prime (Nat.nth Nat.Prime n) := by
-      exact prime_nth_prime n
     have nth_nonzero: Nat.nth Nat.Prime n ≠ 0 := by
-      exact Nat.Prime.ne_zero nth_is_prime
+      exact Nat.Prime.ne_zero (prime_nth_prime n)
     simp [nth_nonzero]
 
 
