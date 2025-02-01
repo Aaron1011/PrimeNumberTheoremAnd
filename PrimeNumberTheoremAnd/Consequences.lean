@@ -2458,6 +2458,48 @@ lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a
   ∃ p, Nat.Prime p ∧ a < p ∧ p < b := by
   sorry
 
+open Count in
+lemma bar {p} {a : ℕ} (h : 0 < a.count p) : ∃k, k < a ∧ p k := by
+  rw [Nat.count_eq_card_fintype] at h
+  rw [Fintype.card_pos_iff] at h
+  let ⟨t, ht⟩ := h
+  exact ⟨t, ht⟩
+
+lemma foo {a k : ℕ}: a < a + k → 0 < k := by simp only [lt_add_iff_pos_right, imp_self]
+
+lemma asdf {p} (a b : ℕ) (hab : a < b) (h : a.count p < b.count p) : ∃(x : ℕ), p x ∧ a < x ∧ x < b := by
+  have : ∃k, b = a + k + 1 := Nat.exists_eq_add_of_lt hab
+  let ⟨k, hk⟩ := this
+  -- have asdf2 := List.range_add a (k + 1)
+  rw [hk] at h
+  rw [add_assoc, Nat.count_add] at h
+  have ffff := foo h
+  have affsadf := bar ffff
+  let ⟨t, ⟨ht, htt⟩⟩ := affsadf
+  refine ⟨(a + t), htt, ?_, ?_⟩
+  · sorry
+  · rw [hk]
+    linarith [ht]
+
+#check Nat.count
+lemma prime_in_gap' (a b : ℕ) (hab : a < b) (h : a.primeCounting < b.primeCounting)
+    : ∃(p : ℕ), p.Prime ∧ a < p ∧ p < b := by
+  apply asdf
+  · exact hab
+  · unfold Nat.primeCounting Nat.primeCounting' at h
+    sorry
+
+lemma prime_in_gap (a b : ℝ) (hab : a < b) (h : ⌊a⌋₊.primeCounting < ⌊b⌋₊.primeCounting)
+    : ∃(p : ℕ), p.Prime ∧ a < p ∧ p < b := by
+  have : ⌊a⌋₊ < ⌊b⌋₊ := by sorry
+  have := prime_in_gap' ⌊a⌋₊ ⌊b⌋₊ this h
+  let ⟨w, ⟨h, ha, hb⟩⟩ := this
+  refine ⟨w, h, ⟨?_, ?_⟩⟩
+  · norm_cast
+  · sorry
+
+theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
+
 lemma bound_unknown_f_second_term (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 → ∀ᶠ x: ℝ in atTop, (1 + f x) < (1 + δ)  := by
   intro δ hδ
 
