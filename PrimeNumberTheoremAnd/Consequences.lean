@@ -2048,6 +2048,45 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
   rw [← Filter.tendsto_comp_val_Ici_atTop (a := 1)]
 
 
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+    arg 1
+    arg 2
+    rw [add_mul]
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+    rw [mul_div_right_comm]
+    rw [mul_add]
+
+  simp
+  conv =>
+    arg 1
+    intro x
+    rw [sub_eq_add_neg]
+    rw [add_assoc]
+    arg 2
+    rw [add_comm]
+
+  conv =>
+    arg 1
+    intro x
+    rw [← add_assoc]
+
+  apply Filter.Tendsto.add_atTop (C := 0)
+
+  rotate_right
+  . simp
+
+
+
+
+
   conv =>
     arg 1
     intro x
@@ -2064,6 +2103,18 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
     . tactic =>
         linarith
 
+
+
+
+
+  simp
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+    equals (1 + c ((1 + ε) * ↑x)) * (↑x) / (log ↑x + log (1 + ε)) + (1 + c ((1 + ε) * ↑x)) * (ε * ↑x) / (log ↑x + log (1 + ε)) =>
+      field_simp
 
 
 
