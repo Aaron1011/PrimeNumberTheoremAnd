@@ -2033,9 +2033,67 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
     simp [nth_nonzero]
 
 
-
 lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
-(fun (x: ℝ) => Nat.primeCounting ⌊(1 + ε) * x⌋₊ - Nat.primeCounting ⌊x⌋₊) atTop atTop := by sorry
+(fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
+  obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
+  rw [Asymptotics.isLittleO_iff_tendsto] at hc
+  conv =>
+    arg 1
+    intro x
+    rw [pi_x_eq]
+    rw [pi_x_eq]
+  simp at hc
+
+
+  rw [← Filter.tendsto_comp_val_Ici_atTop (a := 1)]
+
+
+  conv =>
+    arg 1
+    intro x
+    -- TODO - using 'pattern log ((1 + ε) * x)' introduces a nonsense metavariable
+    arg 1
+    arg 2
+    rw [mul_comm]
+    rw [Real.log_mul]
+    . rfl
+    . tactic =>
+        have foo := x.prop
+        dsimp [Set.Ici] at foo
+        positivity
+    . tactic =>
+        linarith
+
+
+
+
+
+
+  --rw [NNReal.tendsto_coe]
+
+  --conv =>
+    --pattern log ((1 + ε) * x)
+
+
+
+
+
+  -- conv =>
+  --   arg 1
+  --   intro x
+  --   pattern log ((1 + ε) * x)
+  --   rw [Real.log_mul ?_ ?_]
+  --   . skip
+  --   . tactic =>
+  --     linarith
+  --   . tactic =>
+  --     sorry
+
+
+
+
+
+
 
 /-%%
 \begin{proof}
@@ -2055,6 +2113,7 @@ For every $\eps>0$, there is a prime between $x$ and $(1+\eps)x$ for all suffici
 lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a⌋₊ < Nat.primeCounting ⌊b⌋₊):
   ∃ p, Nat.Prime p ∧ a < p ∧ p < b := by
   sorry
+
 
 
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
