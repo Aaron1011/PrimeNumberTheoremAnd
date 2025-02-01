@@ -2034,6 +2034,9 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
 
 
 
+lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
+(fun (x: ℝ) => Nat.primeCounting ⌊(1 + ε) * x⌋₊ - Nat.primeCounting ⌊x⌋₊) atTop atTop := by sorry
+
 /-%%
 \begin{proof}
 \uses{pn-asymptotic}
@@ -2047,8 +2050,45 @@ For every $\eps>0$, there is a prime between $x$ and $(1+\eps)x$ for all suffici
 \end{corollary}
 %%-/
 
+--lemma has_jump (ε: ℝ) (hε: ε > 0): ∀ᶠ x:ℝ in atTop, Nat.primeCounting ⌊x⌋₊ < Nat.primeCounting ⌊(1 + ε) * x⌋₊ := by
+
+lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a⌋₊ < Nat.primeCounting ⌊b⌋₊):
+  ∃ p, Nat.Prime p ∧ a < p ∧ p < b := by
+  sorry
+
+
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
+  have foo := my_tendsto ε hε
+  rw [Filter.tendsto_iff_forall_eventually_mem] at foo
+  specialize foo (Set.Ici 1) (by exact Ici_mem_atTop 1)
+  simp at foo
+  obtain ⟨a, ha⟩ := foo
+  simp
+  use (max a 1)
+  intro b hb
+  specialize ha (max b 1)
+  simp at hb
+  simp at ha
+  have a_or_b: a ≤ b ∨ a ≤ 1  := by
+    left
+    exact hb.1
+  specialize ha a_or_b
+
+
+  have b_pos: 0 < b := by linarith
+  have one_eps: 1 < (1 + ε) := by linarith
+
+  have b_lt: b < (1 + ε) * (b) := by
+    exact (lt_mul_iff_one_lt_left b_pos).mpr one_eps
+
+  have val_lt: ⌊(b ⊔ 1)⌋₊.primeCounting < ⌊(1 + ε) * (b ⊔ 1)⌋₊.primeCounting := by
+    omega
+
+  have jump := jump_implies_prime _ _ b_lt val_lt
+  exact jump
+
+
   sorry
 
 
