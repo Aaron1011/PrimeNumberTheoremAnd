@@ -2099,19 +2099,18 @@ theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, 
   simp at foo
   obtain ⟨a, ha⟩ := foo
   simp
-  use (max a 1)
+  use a
   intro b hb
-  specialize ha (max b 1)
-  simp at hb
-  simp at ha
-  have a_or_b: a ≤ b ∨ a ≤ 1  := by
-    left
-    exact hb.1
-  specialize ha a_or_b
+  specialize ha b
+  specialize ha hb
+  -- have a_or_b: a ≤ b ∨ a ≤ 1  := by
+  --   left
+  --   exact hb.1
+  -- specialize ha a_or_b
 
 
-  have b_pos: 0 < b := by linarith
-  have one_eps: 1 < (1 + ε) := by linarith
+  --have b_pos: 0 < b := by linarith
+  --have one_eps: 1 < (1 + ε) := by linarith
 
   have b_lt: b < (1 + ε) * (b) := by
     exact (lt_mul_iff_one_lt_left b_pos).mpr one_eps
