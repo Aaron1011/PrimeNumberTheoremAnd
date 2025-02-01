@@ -2070,11 +2070,6 @@ theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, 
   specialize ha b
   simp at hb
   specialize ha hb.1
-  -- have a_or_b: a ≤ b ∨ a ≤ 1  := by
-  --   left
-  --   exact hb.1
-  -- specialize ha a_or_b
-
 
   have b_pos: 0 < b := by linarith
   have one_eps: 1 < (1 + ε) := by linarith
