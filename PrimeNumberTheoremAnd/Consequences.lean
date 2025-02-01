@@ -2082,6 +2082,51 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 
   rotate_right
   . simp
+  . sorry
+  .
+    conv =>
+      arg 1
+      intro x
+      rw [← mul_div_right_comm]
+      rw [mul_comm]
+      rw [mul_div_right_comm]
+    simp_rw [mul_comm]
+    apply Filter.Tendsto.mul_atTop (C := 1)
+    . simp
+    .
+      have one_eq: (1 : ℝ) = 1 + 0 := by simp
+      conv =>
+        arg 3
+        rw [one_eq]
+      apply Filter.Tendsto.add
+      . simp
+      .
+        have foo := Filter.Tendsto.comp (f := fun (x: Set.Ici 1) => x.val * (1 + ε)) (g := fun x => c x) (z := nhds 0) (y := atTop) (x := atTop) ?_ ?_
+        rw [Function.comp_def] at foo
+        . exact foo
+        . exact hc
+        .
+          conv =>
+            arg 1
+            intro x
+            rw [mul_comm]
+          apply Filter.Tendsto.mul_atTop (C := 1 + ε)
+          . linarith
+          . simp
+          . exact tendsto_Ici_atTop.mp fun ⦃U⦄ a ↦ a
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
