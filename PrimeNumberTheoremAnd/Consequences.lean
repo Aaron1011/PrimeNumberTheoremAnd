@@ -4,6 +4,7 @@ import Mathlib.Analysis.Asymptotics.Asymptotics
 import Mathlib.NumberTheory.AbelSummation
 import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
+import Mathlib
 
 set_option lang.lemmaCmd true
 
@@ -1881,9 +1882,35 @@ We have $p_{n+1} - p_n = o(p_n)$
 \end{corollary}
 %%-/
 
+def fake_k (n: ℕ): ℝ := by sorry
+
 theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) ∧
     ∀ n : ℕ, Nat.nth Nat.Prime (n+1) - Nat.nth Nat.Prime n = (c n) * Nat.nth Nat.Prime n := by
-  sorry
+
+  -- (p_(n + 1) - p_n / p_n
+  use (fun n => ((Nat.nth Nat.Prime (n+1) : ℝ) - (Nat.nth Nat.Prime (n)) : ℝ ) / (Nat.nth Nat.Prime n))
+  refine ⟨?_, ?_⟩
+  .
+    simp
+    sorry
+  . intro n
+    have not_zero: ((Nat.nth Nat.Prime n) : ℝ) ≠ 0 := by
+      simp
+      have is_prime := Nat.prime_nth_prime n
+      exact Nat.Prime.ne_zero is_prime
+    simp only [isUnit_iff_ne_zero, ne_eq, not_zero, not_false_eq_true, IsUnit.div_mul_cancel]
+
+  -- obtain ⟨k, k_asymp, h_p_n⟩ := pn_asymptotic
+  -- use fake_k
+  -- simp
+  -- refine ⟨?_, ?_⟩
+  -- . sorry
+  -- . intro n
+  --   have p_n_eq := h_p_n n
+  --   have p_n_plus_eq := h_p_n (n + 1)
+
+  --   rw [p_n_eq, p_n_plus_eq]
+
 
 /-%%
 \begin{proof}
