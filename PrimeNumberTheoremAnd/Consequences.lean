@@ -2067,7 +2067,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
   simp at hc
 
 
-  rw [← Filter.tendsto_comp_val_Ici_atTop (a := 1)]
+  rw [← Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
 
 
 
@@ -2123,7 +2123,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
       apply Filter.Tendsto.add
       . simp
       .
-        have foo := Filter.Tendsto.comp (f := fun (x: Set.Ici 1) => x.val * (1 + ε)) (g := fun x => c x) (z := nhds 0) (y := atTop) (x := atTop) ?_ ?_
+        have foo := Filter.Tendsto.comp (f := fun (x: Set.Ioi 1) => x.val * (1 + ε)) (g := fun x => c x) (z := nhds 0) (y := atTop) (x := atTop) ?_ ?_
         rw [Function.comp_def] at foo
         . exact foo
         . exact hc
@@ -2135,7 +2135,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
           apply Filter.Tendsto.mul_atTop (C := 1 + ε)
           . linarith
           . simp
-          . exact tendsto_Ici_atTop.mp fun ⦃U⦄ a ↦ a
+          . exact tendsto_Ioi_atTop.mp fun ⦃U⦄ a ↦ a
 
     .
       conv =>
@@ -2148,16 +2148,16 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
       . linarith
       . simp
       .
-        have eq_inv: (fun (x: Set.Ici 1) ↦ x.val / log (x.val * (1 + ε))) = (fun (x: Set.Ici 1) ↦ x.val / log (x.val * (1 + ε)))⁻¹⁻¹ := by
+        have eq_inv: (fun (x: Set.Ioi 1) ↦ x.val / log (x.val * (1 + ε))) = (fun (x: Set.Ioi 1) ↦ x.val / log (x.val * (1 + ε)))⁻¹⁻¹ := by
           simp
 
 
-        have log_split: ∀ x: Set.Ici 1, x.val / log (x.val * (1 + ε)) = x.val / (log (x.val) + log (1 + ε)) := by
+        have log_split: ∀ x: Set.Ioi 1, x.val / log (x.val * (1 + ε)) = x.val / (log (x.val) + log (1 + ε)) := by
           intro x
           rw [Real.log_mul]
           .
             have x_gt := x.property
-            dsimp [Set.Ici] at x_gt
+            dsimp [Set.Ioi] at x_gt
             simp
             linarith
           . linarith
@@ -2165,7 +2165,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 
         have log_factor: ∀ x: Set.Ioi 1, x.val / (log (x.val) + log (1 + ε)) = x.val / ((log x.val) * (1 + (log (1 + ε)/(log x.val)))) := by
           intro x
-          have : log (x.val) ≠ 0 := by 
+          have : log (x.val) ≠ 0 := by
             obtain ⟨x, hx⟩ := x
             simp at hx
             simp [hx]
@@ -2173,7 +2173,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
             linarith
             constructor <;> linarith
           field_simp
-            
+
 
         conv at log_factor =>
           intro x
@@ -2210,7 +2210,7 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
               .
                 simp
               .
-                simp only [tendsto_comp_val_Ici_atTop]
+                simp only [tendsto_comp_val_Ioi_atTop]
                 exact tendsto_log_atTop
           . simp
         .
