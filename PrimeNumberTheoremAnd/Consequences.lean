@@ -2053,6 +2053,8 @@ lemma x_log_x_tendsto_atTop: Filter.Tendsto ((fun x => x⁻¹) ∘ fun x => Real
         refine (Real.log_pos_iff ?_).mpr ?_ <;> linarith
       positivity
 
+
+
 lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 (fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
   obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
@@ -2180,7 +2182,28 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
         apply Filter.Tendsto.mul_atTop (C := 1)
         . simp
         .
-          sorry
+          simp
+          have one_eq_one_inv: (1 : ℝ) = 1⁻¹ := by simp
+          conv =>
+            arg 3
+            rw [one_eq_one_inv]
+          rw [tendsto_inv_iff₀ ?_]
+          .
+            have one_eq_add: (1 : ℝ) = 1 + 0 := by simp
+            conv =>
+              arg 3
+              rw [one_eq_add]
+            apply Filter.Tendsto.add
+            . simp
+            .
+              -- TODO - figure out why we can't leave off 'a'
+              apply Filter.Tendsto.div_atTop (l := atTop) (a := (log (1 + ε)))
+              .
+                simp
+              .
+                simp only [tendsto_comp_val_Ici_atTop]
+                exact tendsto_log_atTop
+          . simp
         .
 
           have log_bound := Real.log_le_rpow_div
