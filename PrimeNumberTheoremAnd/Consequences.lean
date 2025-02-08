@@ -2033,6 +2033,11 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
     simp [nth_nonzero]
 
 
+theorem lhopital_zero_atTop {a b : ℝ} {l : Filter ℝ} {f f' g g' : ℝ → ℝ} (hff' : ∀ᶠ x in atTop, HasDerivAt f (f' x) x)
+    (hgg' : ∀ᶠ x in atTop, HasDerivAt g (g' x) x) (hg' : ∀ᶠ x in atTop, g' x ≠ 0)
+    (hftop : Tendsto f atTop (𝓝 0)) (hgtop : Tendsto g atTop (𝓝 0))
+    (hdiv : Tendsto (fun x => f' x / g' x) atTop l) : Tendsto (fun x => f x / g x) atTop l := by
+
 lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 (fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
   obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
@@ -2114,6 +2119,100 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
           . linarith
           . simp
           . exact tendsto_Ici_atTop.mp fun ⦃U⦄ a ↦ a
+
+    .
+      conv =>
+        arg 1
+        intro x
+        rw [mul_comm]
+        rw [mul_div_right_comm]
+        rw [mul_comm]
+      apply Filter.Tendsto.mul_atTop (C := ε)
+      . linarith
+      . simp
+      .
+        have eq_inv: (fun (x: Set.Ici 1) ↦ x.val / log (x.val * (1 + ε))) = (fun (x: Set.Ici 1) ↦ x.val / log (x.val * (1 + ε)))⁻¹⁻¹ := by
+          simp
+
+
+        have log_split: ∀ x: Set.Ici 1, x.val / log (x.val * (1 + ε)) = x.val / (log (x.val) + log (1 + ε)) := by
+          intro x
+          rw [Real.log_mul]
+          .
+            have x_gt := x.property
+            dsimp [Set.Ici] at x_gt
+            simp
+            linarith
+          . linarith
+
+
+        have log_factor: ∀ x: Set.Ici 1, x.val / (log (x.val) + log (1 + ε)) = x.val / ((log x.val) * (1 + (log (1 + ε)/(log x.val)))) := by
+          sorry
+
+        conv at log_factor =>
+          intro x
+          rhs
+
+          rw [div_mul_eq_div_mul_one_div]
+
+
+        simp_rw [log_split]
+        simp_rw [log_factor]
+        conv =>
+          arg 1
+          intro x
+          rw [mul_comm]
+        apply Filter.Tendsto.mul_atTop (C := 1)
+        . simp
+        .
+          sorry
+        .
+
+          have log_bound := Real.log_le_rpow_div
+          have other_eq_inv: (fun (x: Set.Ici 1) => x.val / log x.val) = (fun (x: Set.Ici 1) => x.val / log x.val)⁻¹⁻¹ := by
+            simp
+          rw [other_eq_inv]
+          apply Filter.Tendsto.inv_tendsto_zero
+          have log_littleO := isLittleO_log_rpow_atTop (r := 1) (by simp)
+          rw [Asymptotics.isLittleO_iff_tendsto] at log_littleO
+          simp at log_littleO
+          rw [Pi.inv_def]
+          simp
+          --have other_log := tendsto_log_mul_rpow_nhds_zero (r := 1) (by simp)
+          --simp at other_log
+
+
+
+          --have foo := tendsto_nhdsWithin_of_tendsto_nhds
+          apply tendsto_nhdsWithin_of_tendsto_nhds log_littleO
+          apply?
+
+
+
+
+
+
+
+
+        rw [eq_inv]
+        apply Filter.Tendsto.inv_tendsto_zero
+
+        --have foo := Filter.Tendsto.comp (g := fun (x : ℝ) => x⁻¹) (f := (fun (x: Set.Ici 1) ↦ x.val / log (x.val * (1 + ε)))⁻¹) (z := atTop) (y := nhds 0) (x := atTop) ?_ ?_
+        --rw [Function.comp_def] at foo
+        --. exact foo
+        --.
+        --.
+
+
+        apply tendsto_nhdsWithin_range.mpr
+
+
+
+
+        --have foo := Filter.Tendsto.comp (f := fun (x: Set.Ici 1) => x.val * (1 + ε)) (g := fun x => c x) (z := nhds 0) (y := atTop) (x := atTop) ?_ ?_
+
+        conv =>
+          arg 1
 
 
 
