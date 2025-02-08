@@ -2033,10 +2033,25 @@ theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1:ℝ)) �
     simp [nth_nonzero]
 
 
-theorem lhopital_zero_atTop {a b : ℝ} {l : Filter ℝ} {f f' g g' : ℝ → ℝ} (hff' : ∀ᶠ x in atTop, HasDerivAt f (f' x) x)
-    (hgg' : ∀ᶠ x in atTop, HasDerivAt g (g' x) x) (hg' : ∀ᶠ x in atTop, g' x ≠ 0)
-    (hftop : Tendsto f atTop (𝓝 0)) (hgtop : Tendsto g atTop (𝓝 0))
-    (hdiv : Tendsto (fun x => f' x / g' x) atTop l) : Tendsto (fun x => f x / g x) atTop l := by
+lemma x_log_x_tendsto_atTop: Filter.Tendsto ((fun x => x⁻¹) ∘ fun x => Real.log x / x) Filter.atTop Filter.atTop := by
+  have bar := Filter.Tendsto.comp (f := fun x => Real.log x / x) (g := fun x => x⁻¹) (x := Filter.atTop) (y := (nhdsWithin 0 (Set.Ioi 0))) (z := Filter.atTop) ?_ ?_
+  .
+    exact bar
+  .
+    exact tendsto_inv_nhdsGT_zero (𝕜 := ℝ)
+  .
+    rw [tendsto_nhdsWithin_iff]
+    refine ⟨?_, ?_⟩
+    .
+      have log_div_x := Real.tendsto_pow_log_div_mul_add_atTop 1 0 1 (by simp)
+      simp at log_div_x
+      exact log_div_x
+    . simp
+      use 2
+      intro x hx
+      have log_pos: 0 < Real.log x := by
+        refine (Real.log_pos_iff ?_).mpr ?_ <;> linarith
+      positivity
 
 lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 (fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
@@ -2306,25 +2321,6 @@ For every $\eps>0$, there is a prime between $x$ and $(1+\eps)x$ for all suffici
 --lemma has_jump (ε: ℝ) (hε: ε > 0): ∀ᶠ x:ℝ in atTop, Nat.primeCounting ⌊x⌋₊ < Nat.primeCounting ⌊(1 + ε) * x⌋₊ := by
 
 
-lemma x_log_x_tendsto_atTop: Filter.Tendsto ((fun x => x⁻¹) ∘ fun x => Real.log x / x) Filter.atTop Filter.atTop := by
-  have bar := Filter.Tendsto.comp (f := fun x => Real.log x / x) (g := fun x => x⁻¹) (x := Filter.atTop) (y := (nhdsWithin 0 (Set.Ioi 0))) (z := Filter.atTop) ?_ ?_
-  .
-    exact bar
-  .
-    exact tendsto_inv_nhdsGT_zero (𝕜 := ℝ)
-  .
-    rw [tendsto_nhdsWithin_iff]
-    refine ⟨?_, ?_⟩
-    .
-      have log_div_x := Real.tendsto_pow_log_div_mul_add_atTop 1 0 1 (by simp)
-      simp at log_div_x
-      exact log_div_x
-    . simp
-      use 2
-      intro x hx
-      have log_pos: 0 < Real.log x := by
-        refine (Real.log_pos_iff ?_).mpr ?_ <;> linarith
-      positivity
 
 
 lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a⌋₊ < Nat.primeCounting ⌊b⌋₊):
