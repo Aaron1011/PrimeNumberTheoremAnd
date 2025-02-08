@@ -2163,8 +2163,17 @@ lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
           . linarith
 
 
-        have log_factor: ∀ x: Set.Ici 1, x.val / (log (x.val) + log (1 + ε)) = x.val / ((log x.val) * (1 + (log (1 + ε)/(log x.val)))) := by
-          sorry
+        have log_factor: ∀ x: Set.Ioi 1, x.val / (log (x.val) + log (1 + ε)) = x.val / ((log x.val) * (1 + (log (1 + ε)/(log x.val)))) := by
+          intro x
+          have : log (x.val) ≠ 0 := by 
+            obtain ⟨x, hx⟩ := x
+            simp at hx
+            simp [hx]
+            constructor
+            linarith
+            constructor <;> linarith
+          field_simp
+            
 
         conv at log_factor =>
           intro x
