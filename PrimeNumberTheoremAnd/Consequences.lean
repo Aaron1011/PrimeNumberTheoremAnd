@@ -2935,12 +2935,16 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     . sorry
     .
 
+      -- TODO - can we get rid of this function
+      let my_div (x: ℝ) := x / Real.log x
 
-      --equals (x / log x) * ((2 - 1) * ((1 + ε)) * (2 * log ↑x) + -(2 * ((1 + log (1 + ε) / log ↑x) * log ↑x) * ((2 + 1)))) / (2 * ((1 + log (1 + ε) / log ↑x)) * (2 * log ↑x)) =>
-      --  field_simp
+      conv =>
+        arg 1
+        equals (fun (x : Set.Ioi 1) => my_div x.val) =>
+          simp [my_div]
 
-
-
+      rw [Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
+      exact x_log_x_infinity
   .
     simp
 
