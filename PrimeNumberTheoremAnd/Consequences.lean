@@ -2865,17 +2865,21 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       rw [div_add_div]
       . skip
       tactic =>
-        sorry
-      tactic =>
         simp
+        have bar := x.property
+        simp only [Set.Ioi] at bar
+        simp only [Set.mem_setOf_eq] at bar
+
+        refine ⟨?_, ?_, ?_⟩
+        .
+          have log_num_pos: 0 < log (1 + ε) := by sorry
+          have log_denom_pos: 0 < log x := by sorry
+          positivity
+      tactic =>
         have foo := x.property
         simp only [Set.Ioi] at foo
         simp only [Set.mem_setOf_eq] at foo
-
-        refine ⟨?_, ?_, ?_⟩
-        . linarith
-        . linarith
-        . linarith
+        linarith
 
     field_simp
     conv =>
