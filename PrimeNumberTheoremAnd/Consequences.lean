@@ -2959,7 +2959,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       arg 1
       intro x
       rw [mul_comm]
-    apply Filter.Tendsto.mul_atTop (C := ?C)
+    apply Filter.Tendsto.mul_atTop (C := 42)
     . sorry
     . sorry
     .
@@ -2974,6 +2974,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 
       rw [Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
       exact x_log_x_infinity
+    -- Add a dot here
   .
     simp
 
