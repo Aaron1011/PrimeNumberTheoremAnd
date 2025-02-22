@@ -2482,8 +2482,21 @@ lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: 
   use a
   intro b hb
 
+  have a_pos: 0 < a := by sorry
+
+  have pos_mul: ∀ x y z : ℝ, 0 < x → 0 < y → 1 < z → x ≤ y → x < y * z := by
+    intro x y z hx hy hz hlt
+    have y_lt: y < y * z := by
+      exact (lt_mul_iff_one_lt_right hy).mpr hz
+    linarith
+
   have mul_increase: a ≤ (1 + ε) * b := by
-    omega
+    simp at hb
+    have b_pos: 0 < b := by linarith
+    have eps_pos: 0 < (1 + ε) := by linarith
+    have bar := pos_mul a b (1 + ε) a_pos (by linarith) (by linarith) (by linarith)
+    rw [mul_comm] at bar
+    linarith
 
   specialize ha ((1 + ε) * b) mul_increase
   specialize foo ((1 + ε) * b) δ ha
