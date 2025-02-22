@@ -2689,6 +2689,44 @@ lemma second_smaller_terms (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ 
   .
     linarith
 
+lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
+(fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
+  obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
+  rw [Asymptotics.isLittleO_iff_tendsto] at hc
+  conv =>
+    arg 1
+    intro x
+    rw [pi_x_eq]
+    rw [pi_x_eq]
+  simp at hc
+
+
+  --rw [← Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
+
+  -- (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x)))
+
+  have first_helper := smaller_terms hε c hc (1/2) (by linarith)
+  have second_helper := second_smaller_terms c hc ((1/2)) (by linarith)
+
+  have foo := Filter.tendsto_atTop_mono' (l := atTop)
+    (f₁ := fun x => (
+      ((1 - (1/2)) * ((1 + ε) * x / log ((1 + ε) * x)))
+      -
+      ((1 + (1/2)) * (x / log x)))
+    ) (f₂ := fun x ↦ (1 + c ((1 + ε) * x)) * ((1 + ε) * x) / log ((1 + ε) * x) - (1 + c x) * x / log x) ?_ ?_
+
+  .
+    exact foo
+  . -- Use individual term less than
+    sorry
+  .
+    -- Use log properties
+    sorry
+
+  .
+    simp
+
+
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
   have foo := my_tendsto ε hε
