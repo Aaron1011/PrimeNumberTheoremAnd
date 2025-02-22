@@ -2459,44 +2459,65 @@ lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a
   sorry
 
 open Count in
-lemma bar {p} {a : ℕ} (h : 0 < a.count p) : ∃k, k < a ∧ p k := by
-  rw [Nat.count_eq_card_fintype] at h
-  rw [Fintype.card_pos_iff] at h
+lemma exists_of_zero_lt_count {p} {a : ℕ} (h : 0 < a.count p) : ∃k, k < a ∧ p k := by
+  rw [Nat.count_eq_card_fintype, Fintype.card_pos_iff] at h
   let ⟨t, ht⟩ := h
   exact ⟨t, ht⟩
 
-lemma foo {a k : ℕ}: a < a + k → 0 < k := by simp only [lt_add_iff_pos_right, imp_self]
+lemma foo {a k : ℕ}: a < a + k → 0 < k := lt_add_iff_pos_right a |>.mp
 
-lemma asdf {p} (a b : ℕ) (hab : a < b) (h : a.count p < b.count p) : ∃(x : ℕ), p x ∧ a < x ∧ x < b := by
+lemma asdf {p} (a b : ℕ) (hab : a < b) (h : a.count p < b.count p)
+    : ∃(x : ℕ), p x ∧ a ≤ x ∧ x < b := by
   have : ∃k, b = a + k + 1 := Nat.exists_eq_add_of_lt hab
   let ⟨k, hk⟩ := this
-  -- have asdf2 := List.range_add a (k + 1)
-  rw [hk] at h
-  rw [add_assoc, Nat.count_add] at h
-  have ffff := foo h
-  have affsadf := bar ffff
-  let ⟨t, ⟨ht, htt⟩⟩ := affsadf
-  refine ⟨(a + t), htt, ?_, ?_⟩
-  · sorry
+  rw [hk, add_assoc, Nat.count_add] at h
+  have exists_some : ∃ x < k + 1, p (a + x) :=
+    exists_of_zero_lt_count (lt_add_iff_pos_right _ |>.mp h)
+  let ⟨t, ⟨t_lt, lt_t⟩⟩ := exists_some
+  refine ⟨(a + t), lt_t, ?_, ?_⟩
+  · simp only [le_add_iff_nonneg_right, _root_.zero_le]
   · rw [hk]
-    linarith [ht]
+    linarith [t_lt]
 
-#check Nat.count
 lemma prime_in_gap' (a b : ℕ) (hab : a < b) (h : a.primeCounting < b.primeCounting)
-    : ∃(p : ℕ), p.Prime ∧ a < p ∧ p < b := by
+    : ∃(p : ℕ), p.Prime ∧ (a + 1) ≤ p ∧ p < (b + 1) := by
   apply asdf
-  · exact hab
+  · omega
   · unfold Nat.primeCounting Nat.primeCounting' at h
-    sorry
+    convert h
 
-lemma prime_in_gap (a b : ℝ) (hab : a < b) (h : ⌊a⌋₊.primeCounting < ⌊b⌋₊.primeCounting)
-    : ∃(p : ℕ), p.Prime ∧ a < p ∧ p < b := by
-  have : ⌊a⌋₊ < ⌊b⌋₊ := by sorry
-  have := prime_in_gap' ⌊a⌋₊ ⌊b⌋₊ this h
+lemma prime_in_gap (a b : ℝ) (ha : 0 < a)
+    (hab : ⌊a⌋₊ <  ⌊b⌋₊) (h : ⌊a⌋₊.primeCounting < ⌊b⌋₊.primeCounting)
+    : ∃(p : ℕ), p.Prime ∧ a < p ∧ p ≤ b := by
+  have := prime_in_gap' ⌊a⌋₊ ⌊b⌋₊ hab h
   let ⟨w, ⟨h, ha, hb⟩⟩ := this
   refine ⟨w, h, ⟨?_, ?_⟩⟩
-  · norm_cast
-  · sorry
+  · calc
+      a < ⌊a⌋₊ + 1 := lt_floor_add_one a
+      _ ≤ w := by norm_cast
+  · by_contra h
+    have : b < w := lt_of_not_le h
+    have : ⌊b⌋₊ + 1 ≤ w := by
+      have : a < b := by
+        by_contra h
+        have := le_of_not_lt h
+        have := lt_or_eq_of_le this
+        cases this with
+        | inl hh =>
+          have hhh : b ≤ a := le_of_lt hh
+          have asdf := floor_le_floor hhh
+          linarith
+        | inr hh =>
+          rw [hh] at hab
+          rw [←lt_self_iff_false ⌊a⌋₊]
+          exact hab
+      have : 0 ≤ b := by linarith
+      have : ⌊b⌋₊ < w := by apply?
+      linarith
+    linarith
+
+theorem prime_between {ε:ℝ} (hε: 0 < ε)
+    : ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
 
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
 
