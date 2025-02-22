@@ -2559,6 +2559,40 @@ lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: 
   specialize foo ((1 + ε) * b) δ ha
   exact foo
 
+lemma smaller_terms {ε:ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 →
+  ∀ᶠ x: ℝ in atTop, (1 - δ) * (((1 + ε) * x / (Real.log ((1 + ε) * x)))) < (1 + f ((1 + ε) * x)) * ((1 + ε) * x / (Real.log ((1 + ε) * x))) := by
+  intro δ hδ
+  have first_term := bound_unknown_f_first_term hε f hf δ hδ
+  dsimp [GT.gt] at first_term
+
+  simp at first_term
+  obtain ⟨p, hp⟩ := first_term
+  simp
+  let a := max p 1
+  have ha: ∀ (b : ℝ), a ≤ b → 1 - δ < 1 + f ((1 + ε) * b) := by
+    intro b hb
+    have a_ge_p: p <= a := by
+      simp [a]
+    specialize hp b (by linarith)
+    exact hp
+  use a
+  intro b hb
+  specialize ha b hb
+  have rhs_nonzero: (1 + ε) * b / log ((1 + ε) * b) > 0 := by
+    simp [a] at hb
+    have b_ge_one: 1 ≤ b := hb.2
+    have log_pos: Real.log ((1 + ε) *b) > 0 := by
+      have one_pplus_pos: 1 < (1 + ε) := by linarith
+      refine (Real.log_pos_iff ?_).mpr ?_
+      . positivity
+      . exact one_lt_mul_of_lt_of_le one_pplus_pos b_ge_one
+
+    positivity
+  rw [mul_lt_mul_right]
+  . exact ha
+  .
+    linarith
+
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
   have foo := my_tendsto ε hε
