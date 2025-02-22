@@ -2474,7 +2474,16 @@ lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: 
 
   have f_small := NormedAddCommGroup.tendsto_nhds_zero.mp hf δ hδ
   simp at f_small
-  obtain ⟨a, ha⟩ := f_small
+  obtain ⟨p, hp⟩ := f_small
+
+  let a := ((max 1 p) : ℝ)
+  have ha: ∀ b: ℝ, a ≤ b → |f b| < δ := by
+    intro b hb
+    have b_ge_p: p ≤ b := by
+      have a_ge_p: p ≤ a := by
+        simp [a]
+      linarith
+    exact hp b b_ge_p
 
 
   rw [Filter.eventually_atTop]
@@ -2482,7 +2491,8 @@ lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: 
   use a
   intro b hb
 
-  have a_pos: 0 < a := by sorry
+  have a_pos: 0 < a := by
+    simp [a]
 
   have pos_mul: ∀ x y z : ℝ, 0 < x → 0 < y → 1 < z → x ≤ y → x < y * z := by
     intro x y z hx hy hz hlt
