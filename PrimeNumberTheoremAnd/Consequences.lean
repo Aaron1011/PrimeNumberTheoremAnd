@@ -2123,8 +2123,7 @@ lemma claude_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
     arg 2
     rw [add_mul]
 
-  have eventually_gt: ∀ᶠ (x : ℝ) in atTop, ((1 + c ((1 + ε) * x)) * ((1 + ε) * x) * log x -
-        (log (1 + ε) * ((1 + c x) * x) + log x * ((1 + c x) * ↑x))) := by
+  have eventually_gt: ∀ᶠ (x : ℝ) in atTop, ((1 + c ((1 + ε) * x)) * ((1 + ε) * x) * log x - (log (1 + ε) * ((1 + c x) * x) + log x * ((1 + c x) * ↑x))) := by
           sorry
 
 
@@ -2459,7 +2458,36 @@ lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a
   ∃ p, Nat.Prime p ∧ a < p ∧ p < b := by
   sorry
 
+lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 → ∀ᶠ x: ℝ in atTop, (1 + f ((1 + ε) * x)) > (1 - δ)  := by
+  intro δ hδ
 
+  have foo: ∀ y: ℝ, ∀ z: ℝ, |f y| < z → 1 + (f y) > 1 - z := by
+    intro y z hf
+    by_cases f_pos: 0 < f y
+    .
+      rw [abs_of_pos f_pos] at hf
+      linarith
+    . simp at f_pos
+      rw [abs_of_nonpos f_pos] at hf
+      linarith
+
+
+  have f_small := NormedAddCommGroup.tendsto_nhds_zero.mp hf δ hδ
+  simp at f_small
+  obtain ⟨a, ha⟩ := f_small
+
+
+  rw [Filter.eventually_atTop]
+
+  use a
+  intro b hb
+
+  have mul_increase: a ≤ (1 + ε) * b := by
+    omega
+
+  specialize ha ((1 + ε) * b) mul_increase
+  specialize foo ((1 + ε) * b) δ ha
+  exact foo
 
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
