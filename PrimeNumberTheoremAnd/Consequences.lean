@@ -2593,6 +2593,39 @@ lemma smaller_terms {ε:ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop
   .
     linarith
 
+lemma second_smaller_terms (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 →
+  ∀ᶠ x: ℝ in atTop, (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x))) := by
+  intro δ hδ
+  have first_term := bound_unknown_f_second_term f hf δ hδ
+
+  simp at first_term
+  obtain ⟨p, hp⟩ := first_term
+  simp
+  let a := max p 2
+  have ha: ∀ (b : ℝ), a ≤ b → 1 + δ > 1 + f ( b) := by
+    intro b hb
+    have a_ge_p: p <= a := by
+      simp [a]
+    specialize hp b (by linarith)
+    linarith
+  use a
+  intro b hb
+  specialize ha b hb
+  have rhs_nonzero:  b / log ( b) > 0 := by
+    simp [a] at hb
+    obtain ⟨hb1, hb2⟩ := hb
+    have b_ge_one: 1 < b := by linarith
+    have log_pos: Real.log (b) > 0 := by
+      refine (Real.log_pos_iff ?_).mpr ?_
+      . positivity
+      . linarith
+
+    positivity
+  rw [mul_lt_mul_right]
+  . exact ha
+  .
+    linarith
+
 theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
   have foo := my_tendsto ε hε
