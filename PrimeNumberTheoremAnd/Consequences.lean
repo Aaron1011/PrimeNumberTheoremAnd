@@ -2458,7 +2458,7 @@ lemma jump_implies_prime (a b: ℝ) (hab: a < b) (h_jump: Nat.primeCounting ⌊a
   ∃ p, Nat.Prime p ∧ a < p ∧ p < b := by
   sorry
 
-lemma bound_unknown_f_second_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 → ∀ᶠ x: ℝ in atTop, (1 + f x) < (1 + δ)  := by
+lemma bound_unknown_f_second_term (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 → ∀ᶠ x: ℝ in atTop, (1 + f x) < (1 + δ)  := by
   intro δ hδ
 
   have foo: ∀ y: ℝ, ∀ z: ℝ, |f y| < z → 1 + (f y) < 1 + z := by
