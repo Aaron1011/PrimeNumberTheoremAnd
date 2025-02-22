@@ -2054,6 +2054,106 @@ lemma x_log_x_tendsto_atTop: Filter.Tendsto ((fun x => x⁻¹) ∘ fun x => Real
       positivity
 
 
+lemma claude_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
+(fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
+  obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
+  rw [Asymptotics.isLittleO_iff_tendsto] at hc
+  conv =>
+    arg 1
+    intro x
+    rw [pi_x_eq]
+    rw [pi_x_eq]
+  simp at hc
+
+
+  rw [← Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
+  conv =>
+    arg 1
+    intro x
+    rw [div_sub_div]
+    . simp
+    . tactic =>
+        simp
+        obtain ⟨x, hx⟩ := x
+        simp at hx
+        refine ⟨⟨?_, ?_⟩, ?_⟩
+        . linarith
+        . simp
+          linarith
+        .
+          simp
+          have plus_gt: (1 + ε) > 1 := by linarith
+
+          have mul_gt: 1 < (1 + ε) * x := by
+            apply one_lt_mul ?_ ?_
+            . linarith
+            . linarith
+          refine ⟨?_, ?_⟩
+
+          linarith
+          linarith
+    . tactic =>
+      obtain ⟨x, hx⟩ := x
+      simp
+      simp at hx
+      refine ⟨?_, ⟨?_, ?_⟩⟩
+      . linarith
+      . linarith
+      . linarith
+
+  have bar := 1 = 1
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+    rw [log_mul ?_ ?_]
+    . skip
+    . tactic => linarith
+    . tactic =>
+      obtain ⟨x, hx⟩ := x
+      simp
+      simp at hx
+      linarith
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+    arg 2
+    rw [add_mul]
+
+  have eventually_gt: ∀ᶠ (x : ℝ) in atTop, ((1 + c ((1 + ε) * x)) * ((1 + ε) * x) * log x -
+        (log (1 + ε) * ((1 + c x) * x) + log x * ((1 + c x) * ↑x))) := by
+          sorry
+
+
+
+
+
+  -- conv =>
+  --   arg 1
+  --   intro x
+  --   arg 1
+  --   arg 1
+  --   rw [mul_assoc]
+  --   arg 2
+  --   rw [mul_assoc]
+  --   rw [add_mul]
+  --   simp
+
+
+-- (1 + c(x))[stuff + [1 + c((1 + ε x))]/[1 + c(x)] * other_stuff]
+
+  conv =>
+    arg 1
+    intro x
+    arg 1
+
+
+
+
+
 
 lemma my_tendsto (ε: ℝ) (hε: ε > 0): Tendsto
 (fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
