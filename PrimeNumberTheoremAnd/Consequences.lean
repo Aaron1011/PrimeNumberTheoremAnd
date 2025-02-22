@@ -2872,8 +2872,11 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 
         refine ⟨?_, ?_, ?_⟩
         .
-          have log_num_pos: 0 < log (1 + ε) := by sorry
-          have log_denom_pos: 0 < log x := by sorry
+          have log_num_pos: 0 < log (1 + ε) := by
+            exact Real.log_pos (by linarith)
+          have log_denom_pos: 0 < log x := by
+            exact Real.log_pos bar
+
           positivity
       tactic =>
         have foo := x.property
