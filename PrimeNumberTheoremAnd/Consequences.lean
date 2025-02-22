@@ -2731,20 +2731,22 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 
   -- (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x)))
 
-  have first_helper := smaller_terms hε c hc (1/2) (by linarith)
-  have second_helper := second_smaller_terms c hc ((1/2)) (by linarith)
+  let (d: ℝ) := sorry
+  have hd: 0 < d := by sorry
+
+  have first_helper := smaller_terms hε c hc (d) hd
+  have second_helper := second_smaller_terms c hc d hd
 
   have foo := Filter.tendsto_atTop_mono' (l := atTop)
     (f₁ := fun x => (
-      ((1 - (1/2)) * ((1 + ε) * x / log ((1 + ε) * x)))
+      ((1 - d) * ((1 + ε) * x / log ((1 + ε) * x)))
       -
-      ((1 + (1/2)) * (x / log x)))
+      ((1 + d) * (x / log x)))
     ) (f₂ := fun x ↦ (1 + c ((1 + ε) * x)) * ((1 + ε) * x) / log ((1 + ε) * x) - (1 + c x) * x / log x) ?_ ?_
 
   .
     exact foo
   . -- Use individual term less than
-    simp
     rw [Filter.EventuallyLE]
 
     simp at first_helper
@@ -2783,7 +2785,6 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       exact ha2
   .
     -- Use log properties
-    simp
 
     -- obtain ⟨p, hp⟩ := f_small
 
@@ -2904,12 +2905,12 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       intro x
       lhs
       lhs
-      rw [← mul_assoc]
-      lhs
-      lhs
+      rw [mul_assoc]
       rw [mul_comm]
       lhs
+      rw [mul_assoc]
       rw [mul_comm]
+      rw [mul_assoc]
 
     conv =>
       arg 1
@@ -2931,7 +2932,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       lhs
       rw [mul_assoc]
       rw [mul_assoc]
-      rw [mul_assoc]
+      --rw [mul_assoc]
 
     conv =>
       arg 1
@@ -2951,7 +2952,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       arg 1
       intro x
       rhs
-      equals log ↑x * (2 * ((1 + log (1 + ε) / log ↑x)) * (2 * log ↑x)) =>
+      equals log ↑x * (((1 + log (1 + ε) / log ↑x)) * (log ↑x)) =>
         ring
 
     simp only [mul_div_mul_comm]
@@ -2959,9 +2960,47 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       arg 1
       intro x
       rw [mul_comm]
-    apply Filter.Tendsto.mul_atTop (C := 42)
-    . sorry
-    . sorry
+    apply Filter.Tendsto.mul_atTop (C := ?C)
+    .
+      simp
+    .
+      norm_num
+      conv =>
+        arg 1
+        intro x
+        lhs
+        rhs
+        equals (log x.val) * ((1 + log (1 + ε) / log ↑x) * ((1 + d))) =>
+          ring
+
+      simp_rw [← mul_sub]
+      conv =>
+        arg 1
+        intro x
+        rhs
+        rw [mul_comm]
+
+      simp only [mul_div_mul_comm]
+      conv =>
+        arg 1
+        intro x
+        lhs
+        equals 1 =>
+          have bar := x.property
+          simp only [Set.Ioi] at bar
+          simp only [Set.mem_setOf_eq] at bar
+          have log_nonzero: log x.val ≠ 0 := by
+            simp
+            refine ⟨?_, ?_, ?_⟩
+            . linarith
+            . linarith
+            . linarith
+          simp [log_nonzero]
+
+      simp
+      -- (1 + ε)*2 - 6
+      -- 4
+      sorry
     .
 
       -- TODO - can we get rid of this function
