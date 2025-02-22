@@ -2689,6 +2689,32 @@ lemma second_smaller_terms (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ 
   .
     linarith
 
+lemma inv_log_x_div_x_infinity: Filter.Tendsto ((fun x => x⁻¹) ∘ fun x => Real.log x / x) Filter.atTop Filter.atTop := by
+  have bar := Filter.Tendsto.comp (f := fun x => Real.log x / x) (g := fun x => x⁻¹) (x := Filter.atTop) (y := (nhdsWithin 0 (Set.Ioi 0))) (z := Filter.atTop) ?_ ?_
+  .
+    exact bar
+  .
+    exact tendsto_inv_nhdsGT_zero (𝕜 := ℝ)
+  .
+    rw [tendsto_nhdsWithin_iff]
+    refine ⟨?_, ?_⟩
+    .
+      have log_div_x := Real.tendsto_pow_log_div_mul_add_atTop 1 0 1 (by simp)
+      simp at log_div_x
+      exact log_div_x
+    . simp
+      use 2
+      intro x hx
+      have log_pos: 0 < Real.log x := by
+        refine (Real.log_pos_iff ?_).mpr ?_ <;> linarith
+      positivity
+
+lemma x_log_x_infinity: Filter.Tendsto (fun x => x / Real.log x) Filter.atTop Filter.atTop := by
+  have foo := inv_log_x_div_x_infinity
+  simp [Function.comp_def] at foo
+  exact foo
+
+
 lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 (fun (x: ℝ) => (Nat.primeCounting ⌊(1 + ε) * x⌋₊ : ℝ) - (Nat.primeCounting ⌊x⌋₊ : ℝ)) atTop atTop := by
   obtain ⟨c, hc, pi_x_eq⟩ := pi_alt
@@ -2718,10 +2744,202 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
   .
     exact foo
   . -- Use individual term less than
-    sorry
+    simp
+    rw [Filter.EventuallyLE]
+
+    simp at first_helper
+    simp at second_helper
+
+    obtain ⟨a1, ha1⟩ := first_helper
+    obtain ⟨a2, ha2⟩ := second_helper
+
+    simp only [eventually_atTop]
+
+    use (max a1 a2)
+    intro b hb
+
+    have lt_compare: ∀ a b c d : ℝ, a < c ∧ b > d → a - b ≤ c - d := by
+      intro a b c d h_lt
+      obtain ⟨a_lt, b_gt⟩ := h_lt
+
+      have minus_b: a - b < c - b :=
+        by linarith
+
+      have c_minus_lt: c - b < c - d := by linarith
+      linarith
+
+    apply lt_compare
+    simp at hb
+    refine ⟨?_, ?_⟩
+    .
+      specialize ha1 b hb.1
+      field_simp
+      field_simp at ha1
+      exact ha1
+    .
+      specialize ha2 b hb.2
+      field_simp
+      field_simp at ha2
+      exact ha2
   .
     -- Use log properties
-    sorry
+    simp
+
+    -- obtain ⟨p, hp⟩ := f_small
+
+    -- let a := ((max 1 p) : ℝ)
+    -- have ha: ∀ b: ℝ, a ≤ b → |f b| < δ := by
+    --   intro b hb
+    --   have b_ge_p: p ≤ b := by
+    --     have a_ge_p: p ≤ a := by
+    --       simp [a]
+    --     linarith
+    --   exact hp b b_ge_p
+
+
+
+    rw [← Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
+    have log_split: ∀ x: Set.Ioi 1, x.val / log ((1 + ε) * x.val) = x.val / (log (1 + ε) + log (x.val)) := by
+      intro x
+      rw [Real.log_mul]
+      .
+        have x_gt := x.property
+        dsimp [Set.Ioi] at x_gt
+        simp
+        linarith
+      .
+        have foo := x.property
+        have x_ge_one: 1 < x.val := by
+          simp only [Set.Ioi] at foo
+          simp only [Set.mem_setOf_eq] at foo
+          exact foo
+        linarith
+
+
+    have log_factor: ∀ x: Set.Ioi 1, x.val / (log (1 + ε) + log (x.val)) = x.val / ((1 + (log (1 + ε)/(log x.val))) * (log x.val)) := by
+      intro x
+      have : log (x.val) ≠ 0 := by
+        obtain ⟨x, hx⟩ := x
+        simp at hx
+        simp [hx]
+        constructor
+        linarith
+        constructor <;> linarith
+      field_simp
+      rw [add_comm]
+
+
+
+    conv at log_factor =>
+      intro x
+      rhs
+
+      rw [div_mul_eq_div_mul_one_div]
+
+
+
+    have mul_swap: ∀ a b c : ℝ, (a * b) / c = a * (b / c) := by
+      exact fun a b c ↦ mul_div_assoc a b c
+
+
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rw [mul_div_assoc]
+      rw [log_split x]
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rw [log_factor]
+
+    field_simp
+    conv =>
+      arg 1
+      intro x
+      rw [sub_eq_add_neg]
+      rw [← neg_div]
+      rw [div_add_div]
+      . skip
+      tactic =>
+        sorry
+      tactic =>
+        sorry
+
+    field_simp
+    conv =>
+      arg 1
+      intro x
+      lhs
+      lhs
+      rw [← mul_assoc]
+      lhs
+      lhs
+      rw [mul_comm]
+      lhs
+      rw [mul_comm]
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rhs
+      rw [mul_comm]
+      arg 1
+      rw [← mul_assoc]
+      arg 1
+      rw [mul_assoc]
+      rw [mul_comm]
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rw [← sub_eq_add_neg]
+      lhs
+      rw [mul_assoc]
+      rw [mul_assoc]
+      rw [mul_assoc]
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rhs
+      rw [mul_assoc]
+      rw [mul_assoc]
+
+    conv =>
+      arg 1
+      intro x
+      lhs
+      rw [← mul_sub]
+
+    conv =>
+      arg 1
+      intro x
+      rhs
+      equals log ↑x * (2 * ((1 + log (1 + ε) / log ↑x)) * (2 * log ↑x)) =>
+        ring
+
+    simp only [mul_div_mul_comm]
+    conv =>
+      arg 1
+      intro x
+      rw [mul_comm]
+    apply Filter.Tendsto.mul_atTop (C := ?C)
+    . sorry
+    . sorry
+    .
+
+
+      --equals (x / log x) * ((2 - 1) * ((1 + ε)) * (2 * log ↑x) + -(2 * ((1 + log (1 + ε) / log ↑x) * log ↑x) * ((2 + 1)))) / (2 * ((1 + log (1 + ε) / log ↑x)) * (2 * log ↑x)) =>
+      --  field_simp
+
+
 
   .
     simp
