@@ -2472,18 +2472,24 @@ lemma bound_unknown_f_first_term {ε : ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: 
       linarith
 
 
+  have attop_change: (∀ᶠ (x : ℝ) in atTop, sin x = 5) → (∃ y: NNReal, sin y = 5) := by
+    apply?
+
   have f_small := NormedAddCommGroup.tendsto_nhds_zero.mp hf δ hδ
   simp at f_small
   obtain ⟨a, ha⟩ := f_small
 
 
+
   rw [Filter.eventually_atTop]
 
-  use a
+  use (max a 0)
   intro b hb
 
-  have mul_increase: a ≤ (1 + ε) * b := by
-    omega
+  have mul_increase: (max a 0) ≤ (1 + ε) * b := by
+    simp at hb
+    obtain ⟨h1, h2⟩ := hb
+
 
   specialize ha ((1 + ε) * b) mul_increase
   specialize foo ((1 + ε) * b) δ ha
