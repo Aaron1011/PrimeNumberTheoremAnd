@@ -2960,9 +2960,14 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       arg 1
       intro x
       rw [mul_comm]
-    apply Filter.Tendsto.mul_atTop (C := ?C)
+
+    let A: ℝ := (1 + ε) * (1 - d)
+    let B: ℝ := (1 + d)
+
+    apply Filter.Tendsto.mul_atTop (C := A - B)
     .
-      simp
+      simp [A, B]
+      sorry
     .
       norm_num
       conv =>
@@ -3000,16 +3005,10 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       simp
       conv =>
         arg 3
-        equals nhds (?C / 1) => simp
+        equals nhds ((A - B) / 1) => simp
 
       apply Filter.Tendsto.div
       .
-        let A: ℝ := (1 + ε) * (1 - d)
-        let B: ℝ := (1 + d)
-        conv =>
-          arg 3
-          equals nhds (A - B) =>
-            sorry
         apply Filter.Tendsto.sub
         .
           simp [A]
@@ -3044,9 +3043,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
           . simp
             exact tendsto_log_atTop
       .
-        -- (1 + ε)*2 - 6
-        -- 4
-        sorry
+        simp
     .
 
       -- TODO - can we get rid of this function
@@ -3059,7 +3056,6 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 
       rw [Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
       exact x_log_x_infinity
-    -- Add a dot here
   .
     simp
 
