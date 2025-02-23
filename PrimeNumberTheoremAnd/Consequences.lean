@@ -3003,7 +3003,35 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
         equals nhds (?C / 1) => simp
 
       apply Filter.Tendsto.div
-      . sorry
+      .
+        let A: ℝ := (1 + ε) * (1 - d)
+        let B: ℝ := (1 + d)
+        conv =>
+          arg 3
+          equals nhds (A - B) =>
+            sorry
+        apply Filter.Tendsto.sub
+        .
+          simp [A]
+        .
+          simp [B]
+          conv =>
+            arg 3
+            equals nhds (1 * (1 + d)) => simp
+          apply Filter.Tendsto.mul
+          .
+            conv =>
+              arg 3
+              equals nhds (1 + 0) => simp
+            apply Filter.Tendsto.add
+            . simp
+            .
+              apply Filter.Tendsto.div_atTop (a := log (1 + ε))
+              . simp
+              . simp
+                exact tendsto_log_atTop
+
+          . simp
       .
         conv =>
           arg 3
