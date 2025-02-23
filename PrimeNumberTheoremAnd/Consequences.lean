@@ -2731,9 +2731,8 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
 
   -- (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x)))
 
-  let (d: ℝ) := sorry
-  have hd: 0 < d := by sorry
-
+  let d: ℝ := ε/(2*(2 + ε))
+  have hd: 0 < d := by positivity
   have first_helper := smaller_terms hε c hc (d) hd
   have second_helper := second_smaller_terms c hc d hd
 
@@ -2967,7 +2966,48 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     apply Filter.Tendsto.mul_atTop (C := A - B)
     .
       simp [A, B]
-      sorry
+      rw [mul_sub]
+      simp
+      -- 1 + d < 1 + ε - (1 + ε) * d
+      -- d < ε - (1 + ε) * d
+      -- 0 < ε - ((1 + ε) * d) - d
+      -- 0 < ε + d(-((1 + ε) - 1)
+      -- -ε < d(-((1 + ε) - 1)
+      -- -eps < d((-1 - ε) - 1)
+      -- -eps < d(-2 - ε)
+      -- -eps/(-2 - ε) > d
+      -- eps/(2 + ε) > d
+
+      -- d < eps/(2 + ε)
+      simp [d]
+      conv =>
+        rhs
+        rw [sub_eq_add_neg]
+        rw [add_assoc]
+      simp
+      field_simp
+      rw [div_lt_iff₀']
+
+      rw [add_mul]
+      simp
+      rw [mul_assoc]
+      rw [add_mul]
+      rw [mul_add]
+      rw [← mul_assoc]
+      norm_num
+      rw [← add_assoc]
+      rw [← two_nsmul]
+      simp
+      conv =>
+        equals ε * ε < 2 * ε + 2 * (ε * ε) =>
+          sorry
+
+      conv =>
+        equals 0 < 2 * ε + (ε * ε) =>
+          sorry
+
+      positivity
+      positivity
     .
       norm_num
       conv =>
