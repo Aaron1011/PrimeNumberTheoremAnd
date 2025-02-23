@@ -2996,20 +2996,28 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       rw [← mul_assoc]
       norm_num
       rw [← add_assoc]
-      rw [← two_nsmul]
+      rw [two_mul]
+      apply_fun OrderIso.subRight (ε + ε)
       simp
       conv =>
-        equals ε * ε < 2 * ε + 2 * (ε * ε) =>
-          sorry
+        rhs
+        rw [sub_eq_add_neg]
+        rw [add_assoc]
+        ring
 
+
+      apply_fun OrderIso.subRight (ε * ε)
+      simp_rw [OrderIso.subRight_apply, sub_self]
       conv =>
-        equals 0 < 2 * ε + (ε * ε) =>
-          sorry
+        rhs
+        rw [sub_eq_add_neg]
+        rw [add_assoc]
+        rhs
+        ring
 
       positivity
       positivity
     .
-      norm_num
       conv =>
         arg 1
         intro x
