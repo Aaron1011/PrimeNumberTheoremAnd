@@ -2998,9 +2998,27 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
           simp [log_nonzero]
 
       simp
-      -- (1 + ε)*2 - 6
-      -- 4
-      sorry
+      conv =>
+        arg 3
+        equals nhds (?C / 1) => simp
+
+      apply Filter.Tendsto.div
+      . sorry
+      .
+        conv =>
+          arg 3
+          equals nhds (1 + 0) => simp
+        apply Filter.Tendsto.add
+        . simp
+        .
+          apply Filter.Tendsto.div_atTop (a := log (1 + ε))
+          . simp
+          . simp
+            exact tendsto_log_atTop
+      .
+        -- (1 + ε)*2 - 6
+        -- 4
+        sorry
     .
 
       -- TODO - can we get rid of this function
