@@ -2487,8 +2487,10 @@ lemma prime_in_gap' (a b : ℕ) (hab : a < b) (h : a.primeCounting < b.primeCoun
     convert h
 
 lemma prime_in_gap (a b : ℝ) (ha : 0 < a)
-    (hab : ⌊a⌋₊ <  ⌊b⌋₊) (h : ⌊a⌋₊.primeCounting < ⌊b⌋₊.primeCounting)
+    (h : ⌊a⌋₊.primeCounting < ⌊b⌋₊.primeCounting)
     : ∃(p : ℕ), p.Prime ∧ a < p ∧ p ≤ b := by
+
+  have hab: ⌊a⌋₊ <  ⌊b⌋₊ := Monotone.reflect_lt Nat.monotone_primeCounting h
   have := prime_in_gap' ⌊a⌋₊ ⌊b⌋₊ hab h
   let ⟨w, ⟨h, ha, hb⟩⟩ := this
   refine ⟨w, h, ⟨?_, ?_⟩⟩
@@ -2516,10 +2518,10 @@ lemma prime_in_gap (a b : ℝ) (ha : 0 < a)
       linarith
     linarith
 
-theorem prime_between {ε:ℝ} (hε: 0 < ε)
-    : ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
+--theorem prime_between {ε:ℝ} (hε: 0 < ε)
+ --   : ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
 
-theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
+--theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧  x < p ∧ p < (1+ε)* x := by sorry
 
 lemma bound_unknown_f_second_term (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 → ∀ᶠ x: ℝ in atTop, (1 + f x) < (1 + δ)  := by
   intro δ hδ
@@ -3108,9 +3110,9 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     simp
 
 
-theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
-    x < p ∧ p < (1+ε)* x := by
-  have foo := my_tendsto ε hε
+theorem prime_between_le {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
+    x < p ∧ p ≤ (1+ε)* x := by
+  have foo := tendsto_by_squeeze ε hε
   rw [Filter.tendsto_iff_forall_eventually_mem] at foo
   specialize foo (Set.Ici 1) (by exact Ici_mem_atTop 1)
   simp at foo
@@ -3122,17 +3124,12 @@ theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, 
   simp at hb
   specialize ha hb.1
 
-  have b_pos: 0 < b := by linarith
-  have one_eps: 1 < (1 + ε) := by linarith
-
-  have b_lt: b < (1 + ε) * (b) := by
-    exact (lt_mul_iff_one_lt_left b_pos).mpr one_eps
-
-  have val_lt: ⌊b⌋₊.primeCounting < ⌊(1 + ε) * b⌋₊.primeCounting := by
-    omega
-
-  have jump := jump_implies_prime _ _ b_lt val_lt
+  have jump := prime_in_gap b ((1 + ε) * b) (by linarith) (by linarith)
   exact jump
+
+theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
+    x < p ∧ p < (1+ε)* x := by
+  sorry
 
 /-%%
 \begin{proof}
