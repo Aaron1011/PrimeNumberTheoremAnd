@@ -3110,9 +3110,9 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     simp
 
 
-theorem prime_between_le {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
-    x < p ∧ p ≤ (1+ε)* x := by
-  have foo := tendsto_by_squeeze ε hε
+theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
+    x < p ∧ p < (1+ε)* x := by
+  have foo := tendsto_by_squeeze (ε/2) (by linarith)
   rw [Filter.tendsto_iff_forall_eventually_mem] at foo
   specialize foo (Set.Ici 1) (by exact Ici_mem_atTop 1)
   simp at foo
@@ -3124,12 +3124,12 @@ theorem prime_between_le {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:�
   simp at hb
   specialize ha hb.1
 
-  have jump := prime_in_gap b ((1 + ε) * b) (by linarith) (by linarith)
-  exact jump
+  have val_lt: (⌊b⌋₊.primeCounting : ℝ) < ⌊(1 + ε/2) * b⌋₊.primeCounting := by linarith
+  norm_cast at val_lt
 
-theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
-    x < p ∧ p < (1+ε)* x := by
-  sorry
+  have jump := prime_in_gap b ((1 + ε/2) * b) (by linarith) val_lt
+  obtain ⟨p, hp, b_lt_p, p_le⟩ := jump
+  have p_lt: p < (1 + ε) * b := by linarith
 
 /-%%
 \begin{proof}
