@@ -2346,7 +2346,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     intro x
     rw [pi_x_eq]
     rw [pi_x_eq]
-  simp at hc
+  simp only [div_one] at hc
 
   -- (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x)))
 
@@ -2508,11 +2508,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
         have foo := x.property
         simp only [Set.Ioi] at foo
         simp only [Set.mem_setOf_eq] at foo
-        refine ⟨?_, ?_, ?_⟩
-        .
-          linarith
-        . linarith
-        . linarith
+        refine ⟨?_, ?_, ?_⟩ <;> linarith
 
     field_simp
     conv =>
@@ -2547,7 +2543,6 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       lhs
       rw [mul_assoc]
       rw [mul_assoc]
-      --rw [mul_assoc]
 
     conv =>
       arg 1
@@ -2576,12 +2571,8 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       intro x
       rw [mul_comm]
 
-    let A: ℝ := (1 + ε) * (1 - d)
-    let B: ℝ := (1 + d)
-
-    apply Filter.Tendsto.mul_atTop (C := A - B)
+    apply Filter.Tendsto.mul_atTop (C := (1 + ε) * (1 - d) - (1 + d))
     .
-      simp [A, B]
       rw [mul_sub]
       simp
       -- 1 + d < 1 + ε - (1 + ε) * d
@@ -2659,25 +2650,21 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
           simp only [Set.Ioi] at bar
           simp only [Set.mem_setOf_eq] at bar
           have log_nonzero: log x.val ≠ 0 := by
-            simp
-            refine ⟨?_, ?_, ?_⟩
-            . linarith
-            . linarith
-            . linarith
+            simp only [ne_eq, log_eq_zero, not_or, A, B, d]
+            refine ⟨?_, ?_, ?_⟩ <;> linarith
           simp [log_nonzero]
 
       simp
       conv =>
         arg 3
-        equals nhds ((A - B) / 1) => simp
+        equals nhds (((1 + ε) * (1 - d) - (1 + d)) / 1) => simp
 
       apply Filter.Tendsto.div
       .
         apply Filter.Tendsto.sub
         .
-          simp [A]
+          simp
         .
-          simp [B]
           conv =>
             arg 3
             equals nhds (1 * (1 + d)) => simp
