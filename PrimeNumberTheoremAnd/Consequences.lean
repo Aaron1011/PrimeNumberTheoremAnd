@@ -3129,7 +3129,12 @@ theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, 
 
   have jump := prime_in_gap b ((1 + ε/2) * b) (by linarith) val_lt
   obtain ⟨p, hp, b_lt_p, p_le⟩ := jump
-  have p_lt: p < (1 + ε) * b := by linarith
+  have p_lt: p < (1 + ε) * b := by
+    linarith
+  use p
+
+
+#print axioms prime_between
 
 /-%%
 \begin{proof}
