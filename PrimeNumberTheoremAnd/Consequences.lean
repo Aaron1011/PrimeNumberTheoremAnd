@@ -2847,7 +2847,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
       arg 1
       intro x
       lhs
-      rw [mul_div_assoc]
+      rewrite [mul_div_assoc]
       rw [log_split x]
 
     conv =>
@@ -3108,7 +3108,9 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     simp
 
 
-theorem prime_between {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
+#print axioms tendsto_by_squeeze
+
+theorem prime_between_new {ε:ℝ} (hε: 0 < ε): ∀ᶠ x:ℝ in atTop, ∃ p:ℕ, Nat.Prime p ∧
     x < p ∧ p < (1+ε)* x := by
   have foo := my_tendsto ε hε
   rw [Filter.tendsto_iff_forall_eventually_mem] at foo
