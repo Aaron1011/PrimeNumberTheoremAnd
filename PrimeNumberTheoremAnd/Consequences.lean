@@ -2258,14 +2258,16 @@ lemma smaller_terms {ε:ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop
   let a := max p 1
   have ha: ∀ (b : ℝ), a ≤ b → 1 - δ < 1 + f ((1 + ε) * b) := by
     intro b hb
-    have a_ge_p: p <= a := by
+    have a_ge_p: p ≤ a := by
       simp [a]
     specialize hp b (by linarith)
     exact hp
   use a
   intro b hb
   specialize ha b hb
-  have rhs_nonzero: (1 + ε) * b / log ((1 + ε) * b) > 0 := by
+  rw [mul_lt_mul_right]
+  . exact ha
+  .
     simp [a] at hb
     have b_ge_one: 1 ≤ b := hb.2
     have log_pos: Real.log ((1 + ε) *b) > 0 := by
@@ -2275,10 +2277,6 @@ lemma smaller_terms {ε:ℝ} (hε: 0 < ε) (f: ℝ → ℝ) (hf: Tendsto f atTop
       . exact one_lt_mul_of_lt_of_le one_pplus_pos b_ge_one
 
     positivity
-  rw [mul_lt_mul_right]
-  . exact ha
-  .
-    linarith
 
 lemma second_smaller_terms (f: ℝ → ℝ) (hf: Tendsto f atTop (nhds 0)): ∀ δ: ℝ, δ > 0 →
   ∀ᶠ x: ℝ in atTop, (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x))) := by
@@ -2349,9 +2347,6 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
     rw [pi_x_eq]
     rw [pi_x_eq]
   simp at hc
-
-
-  --rw [← Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
 
   -- (1 + δ) * (( x / (Real.log (x)))) > (1 + f ( x)) * ( x / (Real.log (x)))
 
@@ -2433,10 +2428,7 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
         linarith
       .
         have foo := x.property
-        have x_ge_one: 1 < x.val := by
-          simp only [Set.Ioi] at foo
-          simp only [Set.mem_setOf_eq] at foo
-          exact foo
+        have x_ge_one: 1 < x.val := Set.mem_Ioi.mp foo
         linarith
 
 
