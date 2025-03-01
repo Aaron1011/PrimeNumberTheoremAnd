@@ -2511,61 +2511,16 @@ lemma tendsto_by_squeeze (ε: ℝ) (hε: ε > 0): Tendsto
         refine ⟨?_, ?_, ?_⟩ <;> linarith
 
     field_simp
-    conv =>
-      arg 1
-      intro x
-      lhs
-      lhs
-      rw [mul_assoc]
-      rw [mul_comm]
-      lhs
-      rw [mul_assoc]
-      rw [mul_comm]
-      rw [mul_assoc]
 
     conv =>
       arg 1
       intro x
-      lhs
-      rhs
-      rw [mul_comm]
-      arg 1
-      rw [← mul_assoc]
-      arg 1
-      rw [mul_assoc]
-      rw [mul_comm]
-
-    conv =>
-      arg 1
-      intro x
-      lhs
-      rw [← sub_eq_add_neg]
-      lhs
-      rw [mul_assoc]
-      rw [mul_assoc]
-
-    conv =>
-      arg 1
-      intro x
-      lhs
-      rhs
-      rw [mul_assoc]
-      rw [mul_assoc]
-
-    conv =>
-      arg 1
-      intro x
-      lhs
-      rw [← mul_sub]
-
-    conv =>
-      arg 1
-      intro x
-      rhs
-      equals log ↑x * (((1 + log (1 + ε) / log ↑x)) * (log ↑x)) =>
+      equals ↑x * (log ↑x * ((1 + ε) * (1 - d)) - (1 + log (1 + ε) / log ↑x) * ((1 + d) * log ↑x)) /
+      (log ↑x * ((1 + log (1 + ε) / log ↑x) * log ↑x)) =>
         ring
 
     simp only [mul_div_mul_comm]
+    extract_goal
     conv =>
       arg 1
       intro x
