@@ -757,6 +757,17 @@ theorem exists_p_primes {n : ℕ} (hn : n ≥ X₀ ^ 2) :
   · convert hp₂_ub' using 2
 
 
+lemma real_mul_left {a b c : ℝ} (ha: a ≤ b) (hb: 0 ≤ b) (hc: 1 ≤ c): a ≤ b * c := by
+  have le_mul_one: a ≤ b * 1 := by
+    simp
+    exact ha
+    
+  grw [le_mul_one]
+  apply mul_le_mul
+  . simp
+  . exact hc
+  . simp
+  . exact hb
 
 @[blueprint "lem:choose-qi"
   (title := "Choice of large primes \\(q_i\\)")
@@ -769,15 +780,151 @@ theorem exists_p_primes {n : ℕ} (hn : n ≥ X₀ ^ 2) :
   -/)
   (proof := /-- Apply Theorem~\ref{thm:Dusart} with suitable values of \(x\) slightly below \(n\),
   e.g.\ \(x = n(1+1/\log^3\sqrt{n})^{-i}\), again keeping track of the intervals.  For \(n\) large
-  enough, these intervals lie in \((\sqrt{n},n)\) and contain primes \(q_i\) with the desired
+  enough, these intervals lie    in \((\sqrt{n},n)\) and contain primes \(q_i\) with the desired
   ordering. -/)
   (proofUses := ["thm:Dusart"])
   (latexEnv := "lemma")]
 theorem exists_q_primes {n : ℕ} (hn : n ≥ X₀ ^ 2) :
     ∃ q : Fin 3 → ℕ, (∀ i, Nat.Prime (q i)) ∧ StrictMono q ∧
       (∀ i : Fin 3, n * (1 + 1 / (log √(n : ℝ)) ^ 3) ^ (-((3 : ℝ) - (i : ℕ))) ≤ q i) ∧ q 2 < n := by
-  sorry
+  
+  have n_lt: 9 ≤ n := by
+    unfold X₀ at hn
+    omega
+  
+  have lt_x: (1 + 1 / Real.log √↑n ^ 3) ≤ 2 := by
+    simp
+    conv =>
+      rhs
+      equals 1 + 1 =>
+        norm_num
+    apply _root_.add_le_add
+    . simp
+    . 
+      rw [inv_le_comm₀]
+      . 
+        simp
+        apply one_le_pow₀
+        rw [Real.le_log_iff_exp_le]
+        . 
+          grw [Real.exp_one_lt_d9]
+          rw [Real.le_sqrt]
+          .
+            have foo:  (2.7182818286 : ℝ) ^ 2 ≤ 3^2 := by
+              grw [pow_le_pow_iff_left₀]
+              . norm_num
+              . norm_num
+              . norm_num
+              . simp
+                
+            grw [foo]
+            norm_num
+            exact n_lt
+          . 
+            positivity
+          . simp
+        . positivity
+      . 
+        apply pow_pos
+        apply Real.log_pos
+        rw [Real.lt_sqrt]
+        . simp
+          omega
+        . simp
+      . simp
+    
+  
+  have lt_x_pow (i: Fin 3): ((1 + 1 / (log √(n : ℝ)) ^ 3))^(i.val) ≤ X₀ := by
+    grw [lt_x]
+    have two_pow: (2: ℝ)^i.val ≤ 8 := by
+      have i_lt := i.prop
+      grw [pow_lt_pow_right₀ (n := 3)]
+      . 
+        norm_num
+      . simp
+      . simp
+    grw [two_pow]
+    unfold X₀
+    norm_num
+    apply add_nonneg
+    . simp
+    . 
+      apply div_nonneg
+      . simp
+      . 
+        apply pow_nonneg
+        apply Real.log_nonneg
+        simp
+        omega
+  
+  use ?_
+  . refine ⟨?_, ?_⟩
+    . 
+      intro i
+      have has_prime := Dusart.proposition_5_4
+      unfold HasPrimeInInterval.log_thm at has_prime
+      unfold HasPrimeInInterval at has_prime
+      conv at has_prime =>
+        intro x hx
+        arg 1
+        intro p
+        rhs
+        rhs
+        rhs
+        equals x * (((1 + 1 / (log x) ^ 3))) =>
+          rw [mul_add]
+          simp
+          norm_cast
+        
+      obtain ⟨p, hp, n_lt, p_lt⟩ := has_prime (n * ((1 + 1 / (log √(n : ℝ)) ^ 3))^(-(i.val : ℤ))) (by
+        norm_cast
+        simp
+        conv =>
+          lhs
+          equals 89693^2 * (89693)⁻¹ =>
+            norm_num
+        apply mul_le_mul
+        . unfold X₀ at hn
+          norm_cast
+        . 
+          unfold X₀ at lt_x_pow
+          rw [inv_le_inv₀]
+          . 
+            specialize lt_x_pow i
+            simpa using lt_x_pow
+          . simp
+          . 
+            apply pow_pos
+            apply add_pos
+            . simp
+            . 
+              -- TODO - why doesn't positivity work here
+              simp
+              apply pow_pos
+              apply Real.log_pos
+              rw [Real.lt_sqrt]
+              .
+                simp
+                omega
+              .
+                simp
+              
+        . simp
+        . simp
+      )      
+      sorry
+    . sorry
 
+  
+  
+  
+  use ?_
+  sorry
+ 
+ 
+ 
+#synth PosMulMono ℝ 
+ 
 blueprint_comment /--
 \subsection{Bounding the factors in \eqref{eq:main-ineq}}
 -/
