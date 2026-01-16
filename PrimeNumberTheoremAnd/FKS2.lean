@@ -157,8 +157,8 @@ theorem remark_after_corollary_11 :
       ring
 
 
-    let c: ℝ := 0.9245
-    let n := 5
+    let c: ℝ := 0.92414
+    let n := 10
 
     have deriv_one_lt: (deriv dawson) c < 0 := by
       rw [deriv_expand]
@@ -173,7 +173,7 @@ theorem remark_after_corollary_11 :
         repeat rw [Finset.sum_range_succ]
         .
           simp
-          grw [Real.exp_bound' (n := 20)]
+          grw [Real.exp_bound' (n := 7)]
           .
             repeat rw [Finset.sum_range_succ]
             simp [Nat.factorial]
