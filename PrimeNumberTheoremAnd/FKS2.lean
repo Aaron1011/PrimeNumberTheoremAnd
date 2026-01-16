@@ -205,18 +205,61 @@ theorem remark_after_corollary_11 :
       rw [Real.exp_neg]
       rw [← gt_iff_lt]
       simp
-      grw [(intervalIntegral.integral_mono_on (g := (fun t => ∑ i ∈ Finset.range n, t ^ (2 * i) / ↑i.factorial) ) ?_ ?_ ?_ ?_)]
+      grw [(intervalIntegral.integral_mono_on (g := (fun t => (∑ i ∈ Finset.range n, t ^ (2 * i) / ↑i.factorial) + (t ^ (2 * n) * (n + 1) / (n.factorial * n))) ) ?_ ?_ ?_ ?_)]
       .
-        rw [intervalIntegral.integral_finset_sum]
-        repeat rw [Finset.sum_range_succ]
-        .
-          grw [(Real.sum_le_exp_of_nonneg (by positivity) 7).ge]
-          simp
-          repeat rw [Finset.sum_range_succ]
-          simp [Nat.factorial]
-          norm_num
 
-        . intro i hi
+        rw [intervalIntegral.integral_add]
+        rw [intervalIntegral.integral_finset_sum]
+        grw [(Real.sum_le_exp_of_nonneg (by positivity) (n + 1)).ge]
+        .
+          rw [Finset.sum_range_succ (n := n)]
+          rw [add_mul]
+          apply add_lt_add
+          .
+            rw [Finset.sum_mul]
+            apply Finset.sum_lt_sum_of_nonempty
+            . simp [n]
+            . intro i hi
+              simp
+              field_simp
+              rw [← lt_div_iff₀ (by positivity)]
+              grw [pow_le_pow_of_le_one (m := 2 * i)]
+              .
+                field_simp
+                rw [← pow_mul]
+                rw [mul_div_assoc]
+                nth_rw 2 [← Real.rpow_natCast]
+                rw [← Real.rpow_sub_one]
+                simp
+                rw [mul_comm]
+                apply mul_lt_mul
+                . sorry
+                .
+                  rw [← Real.rpow_natCast]
+                  grw [Real.rpow_le_rpow_left_iff_of_base_lt_one]
+                  . norm_num
+                  . norm_num
+                  . norm_num
+                . norm_num
+                . norm_cast
+                  simp
+                . norm_num
+              . norm_num
+              . norm_num
+              . omega
+          .
+            simp
+            norm_num
+            simp [Nat.factorial]
+            norm_num
+        .
+          intro i hi
+          apply Continuous.intervalIntegrable
+          fun_prop
+        .
+          apply Continuous.intervalIntegrable
+          fun_prop
+        .
           apply Continuous.intervalIntegrable
           fun_prop
       . norm_num
@@ -226,9 +269,12 @@ theorem remark_after_corollary_11 :
         fun_prop
       .
         intro t ht
-        grw [Real.exp_bound' (n := (n - 1))]
+        grw [Real.exp_bound' (n := (n))]
         .
-          sorry
+          simp
+          field_simp
+          ring
+          apply le_refl
         . positivity
         .
           simp at ht
@@ -239,6 +285,7 @@ theorem remark_after_corollary_11 :
           . grind
           . simp
         . simp [n]
+
     sorry
 
 
