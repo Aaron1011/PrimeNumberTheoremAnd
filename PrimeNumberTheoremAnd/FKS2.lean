@@ -157,7 +157,8 @@ theorem remark_after_corollary_11 :
       ring
 
 
-    let c: ℝ := 0.942
+    let c: ℝ := 0.9245
+    let n := 5
 
     have deriv_one_lt: (deriv dawson) c < 0 := by
       rw [deriv_expand]
@@ -166,27 +167,23 @@ theorem remark_after_corollary_11 :
       simp only [one_div, mul_inv_rev]
       rw [Real.exp_neg]
       rw [← gt_iff_lt]
-      grw [(intervalIntegral.integral_mono (f := (fun t => 1 + t^2 + (t^4)/2)) ?_ ?_ ?_ ?_).ge]
+      grw [(intervalIntegral.integral_mono (f := (fun t => ∑ i ∈ Finset.range n, t ^ (2 * i) / ↑i.factorial) ) ?_ ?_ ?_ ?_).ge]
       .
-        rw [intervalIntegral.integral_add]
+        rw [intervalIntegral.integral_finset_sum]
+        repeat rw [Finset.sum_range_succ]
         .
-          rw [intervalIntegral.integral_add]
+          simp
+          grw [Real.exp_bound' (n := 20)]
           .
-            simp only [intervalIntegral.integral_const, sub_zero, smul_eq_mul, mul_one,
-              integral_pow, Nat.reduceAdd, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow,
-              Nat.cast_ofNat, intervalIntegral.integral_div, inv_inv, gt_iff_lt]
-            grw [Real.exp_bound' (n := 3)]
-            .
-              repeat rw [Finset.sum_range_succ]
-              simp [Nat.factorial]
-              norm_num
-            . norm_num
-            . norm_num
-            . simp
+            repeat rw [Finset.sum_range_succ]
+            simp [Nat.factorial]
+            norm_num
+          . norm_num
+          . norm_num
           . simp
-          . simp
-        . simp
-        . simp
+        . intro i hi
+          apply Continuous.intervalIntegrable
+          fun_prop
       . norm_num
       . apply Continuous.intervalIntegrable
         fun_prop
@@ -195,12 +192,9 @@ theorem remark_after_corollary_11 :
       .
         rw [Pi.le_def]
         intro t
-        grw [← (Real.quadratic_le_exp_of_nonneg)]
-        .
-          rw [← pow_mul]
-        . positivity
-
-
+        grw [← Real.sum_le_exp_of_nonneg (n := n) (by positivity)]
+        ring
+        rfl
 
     sorry
 
