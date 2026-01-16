@@ -156,7 +156,10 @@ theorem remark_after_corollary_11 :
       simp [dawson]
       ring
 
-    have deriv_one_lt: (deriv dawson) 0.99 < 0 := by
+
+    let c: ℝ := 0.981
+
+    have deriv_one_lt: (deriv dawson) c < 0 := by
       rw [deriv_expand]
       simp only [sub_neg]
       rw [← div_lt_iff₀' (by positivity)]
@@ -169,11 +172,13 @@ theorem remark_after_corollary_11 :
         .
           rw [intervalIntegral.integral_add]
           .
-            simp
+            simp only [intervalIntegral.integral_const, sub_zero, smul_eq_mul, mul_one,
+              integral_pow, Nat.reduceAdd, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow,
+              Nat.cast_ofNat, intervalIntegral.integral_div, inv_inv, gt_iff_lt]
             conv =>
               lhs
               lhs
-              equals (rexp 1)^((0.99 : ℝ) ^ 2) =>
+              equals (rexp 1)^((c : ℝ) ^ 2) =>
                 simp
             grw [Real.exp_one_lt_d9]
             conv =>
