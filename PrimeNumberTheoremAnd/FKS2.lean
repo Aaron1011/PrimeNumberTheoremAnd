@@ -158,11 +158,10 @@ theorem remark_after_corollary_11 :
 
     have deriv_one_lt: (deriv dawson) 1 < 0 := by
       rw [deriv_one]
-      simp
+      simp only [sub_neg]
       rw [← div_lt_iff₀' (by positivity)]
-      simp
+      simp only [one_div, mul_inv_rev]
       rw [Real.exp_neg]
-      simp
       rw [← gt_iff_lt]
       grw [(intervalIntegral.integral_mono (f := (fun t => 1 + t^2 + (t^4)/2)) ?_ ?_ ?_ ?_).ge]
       .
@@ -170,7 +169,6 @@ theorem remark_after_corollary_11 :
         .
           rw [intervalIntegral.integral_add]
           .
-            simp
             grw [Real.exp_one_lt_d9]
             norm_num
           . simp
@@ -187,7 +185,6 @@ theorem remark_after_corollary_11 :
         intro t
         grw [← (Real.quadratic_le_exp_of_nonneg)]
         .
-          simp
           rw [← pow_mul]
         . positivity
 
