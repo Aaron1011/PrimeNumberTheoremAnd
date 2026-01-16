@@ -158,9 +158,10 @@ theorem remark_after_corollary_11 :
 
 
     let c: ℝ := 0.92414
+    let d: ℝ := 0.90
     let n := 10
 
-    have deriv_one_lt: (deriv dawson) c < 0 := by
+    have deriv_c_neg: (deriv dawson) c < 0 := by
       rw [deriv_expand]
       simp only [sub_neg]
       rw [← div_lt_iff₀' (by positivity)]
@@ -196,7 +197,50 @@ theorem remark_after_corollary_11 :
         ring
         rfl
 
+    have deriv_d_pos: 0 < (deriv dawson) d := by
+      rw [deriv_expand]
+      simp only [sub_pos]
+      rw [← lt_div_iff₀' (by positivity)]
+      simp only [one_div, mul_inv_rev]
+      rw [Real.exp_neg]
+      rw [← gt_iff_lt]
+      simp
+      grw [(intervalIntegral.integral_mono_on (g := (fun t => ∑ i ∈ Finset.range n, t ^ (2 * i) / ↑i.factorial) ) ?_ ?_ ?_ ?_)]
+      .
+        rw [intervalIntegral.integral_finset_sum]
+        repeat rw [Finset.sum_range_succ]
+        .
+          grw [(Real.sum_le_exp_of_nonneg (by positivity) 7).ge]
+          simp
+          repeat rw [Finset.sum_range_succ]
+          simp [Nat.factorial]
+          norm_num
+
+        . intro i hi
+          apply Continuous.intervalIntegrable
+          fun_prop
+      . norm_num
+      . apply Continuous.intervalIntegrable
+        fun_prop
+      . apply Continuous.intervalIntegrable
+        fun_prop
+      .
+        intro t ht
+        grw [Real.exp_bound' (n := (n - 1))]
+        .
+          sorry
+        . positivity
+        .
+          simp at ht
+          rw [pow_le_one_iff_of_nonneg]
+          .
+            simp [d] at ht
+            linarith
+          . grind
+          . simp
+        . simp [n]
     sorry
+
 
 
 
