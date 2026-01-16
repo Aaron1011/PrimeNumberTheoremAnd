@@ -157,7 +157,7 @@ theorem remark_after_corollary_11 :
       ring
 
 
-    let c: ℝ := 0.981
+    let c: ℝ := 0.942
 
     have deriv_one_lt: (deriv dawson) c < 0 := by
       rw [deriv_expand]
@@ -180,36 +180,14 @@ theorem remark_after_corollary_11 :
             --   lhs
             --   equals (rexp 1)^((c : ℝ) ^ 2) =>
             --     simp
-            grw [Real.exp_bound' (n := 2)]
+            grw [Real.exp_bound' (n := 3)]
             .
-              rw [Finset.sum_range_succ]
-              rw [Finset.sum_range_succ]
-              simp
+              repeat rw [Finset.sum_range_succ]
+              simp [Nat.factorial]
               norm_num
             . norm_num
             . norm_num
             . simp
-            --grw [Real.exp_one_lt_d9]
-            -- conv =>
-            --   lhs
-            --   lhs
-            --   arg 2
-            --   norm_num
-
-            -- conv =>
-            --   rhs
-            --   norm_num
-
-            -- conv =>
-            --   lhs
-            --   rhs
-            --   norm_num
-
-
-            -- norm_num
-            -- grw [Real.rpow_le_rpow_of_exponent_le_or_ge (z := 1)]
-            -- . norm_num
-            -- . norm_num
           . simp
           . simp
         . simp
