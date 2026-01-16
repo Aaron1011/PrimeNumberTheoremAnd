@@ -149,15 +149,15 @@ theorem remark_after_corollary_11 :
       sorry
 
 
-    have deriv_one: (deriv dawson) 1 = (1 : ℝ) - (2 * (exp (-1 : ℝ)) * (∫ t in 0..1, exp (t ^ 2))) := by
-      specialize deriv_eq 1
+    have deriv_expand (x: ℝ): (deriv dawson) x = (1 : ℝ) - (2 * x * (exp (-(x : ℝ)^2)) * (∫ t in 0..x, exp (t ^ 2))) := by
+      specialize deriv_eq x
       rw [← eq_sub_iff_add_eq] at deriv_eq
       rw [deriv_eq]
       simp [dawson]
       ring
 
-    have deriv_one_lt: (deriv dawson) 1 < 0 := by
-      rw [deriv_one]
+    have deriv_one_lt: (deriv dawson) 0.99 < 0 := by
+      rw [deriv_expand]
       simp only [sub_neg]
       rw [← div_lt_iff₀' (by positivity)]
       simp only [one_div, mul_inv_rev]
@@ -169,13 +169,36 @@ theorem remark_after_corollary_11 :
         .
           rw [intervalIntegral.integral_add]
           .
+            simp
+            conv =>
+              lhs
+              lhs
+              equals (rexp 1)^((0.99 : ℝ) ^ 2) =>
+                simp
             grw [Real.exp_one_lt_d9]
-            norm_num
+            conv =>
+              lhs
+              lhs
+              arg 2
+              norm_num
+
+            conv =>
+              rhs
+              norm_num
+
+            conv =>
+              lhs
+              rhs
+              norm_num
+
+            grw [Real.rpow_le_rpow_of_exponent_le_or_ge (z := 1)]
+            . norm_num
+            . norm_num
           . simp
           . simp
         . simp
         . simp
-      . simp
+      . norm_num
       . apply Continuous.intervalIntegrable
         fun_prop
       . apply Continuous.intervalIntegrable
