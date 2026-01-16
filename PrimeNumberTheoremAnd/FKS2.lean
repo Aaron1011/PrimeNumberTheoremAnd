@@ -143,7 +143,59 @@ noncomputable def dawson (x : ℝ) : ℝ := exp (-x ^ 2) * ∫ t in 0..x, exp (t
   (latexEnv := "remark")]
 theorem remark_after_corollary_11 :
     ∃ x₀ : ℝ, x₀ ∈ Set.Icc 0.924 0.925 ∧ (∀ x, dawson x ≤ dawson x₀) ∧
-      StrictAntiOn dawson (Set.Ioi x₀) := sorry
+      StrictAntiOn dawson (Set.Ioi x₀) := by
+
+    have deriv_eq: ∀ x, (deriv dawson) x + (2 * x * (dawson x)) = 1 := by
+      sorry
+
+
+    have deriv_one: (deriv dawson) 1 = (1 : ℝ) - (2 * (exp (-1 : ℝ)) * (∫ t in 0..1, exp (t ^ 2))) := by
+      specialize deriv_eq 1
+      rw [← eq_sub_iff_add_eq] at deriv_eq
+      rw [deriv_eq]
+      simp [dawson]
+      ring
+
+    have deriv_one_lt: (deriv dawson) 1 < 0 := by
+      rw [deriv_one]
+      simp
+      rw [← div_lt_iff₀' (by positivity)]
+      simp
+      rw [Real.exp_neg]
+      simp
+      rw [← gt_iff_lt]
+      grw [(intervalIntegral.integral_mono (f := (fun t => 1 + t^2 + (t^4)/2)) ?_ ?_ ?_ ?_).ge]
+      .
+        rw [intervalIntegral.integral_add]
+        .
+          rw [intervalIntegral.integral_add]
+          .
+            simp
+            grw [Real.exp_one_lt_d9]
+            norm_num
+          . simp
+          . simp
+        . simp
+        . simp
+      . simp
+      . apply Continuous.intervalIntegrable
+        fun_prop
+      . apply Continuous.intervalIntegrable
+        fun_prop
+      .
+        rw [Pi.le_def]
+        intro t
+        grw [← (Real.quadratic_le_exp_of_nonneg)]
+        .
+          simp
+          rw [← pow_mul]
+        . positivity
+
+
+
+    sorry
+
+
 
 @[blueprint
   "fks2-lemma-12"
