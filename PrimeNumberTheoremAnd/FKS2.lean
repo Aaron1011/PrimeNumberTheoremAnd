@@ -158,7 +158,7 @@ theorem remark_after_corollary_11 :
 
 
     let c: ℝ := 0.92414
-    let d: ℝ := 0.90
+    let d: ℝ := 0.924138
     let n := 10
 
     have deriv_c_neg: (deriv dawson) c < 0 := by
@@ -204,7 +204,7 @@ theorem remark_after_corollary_11 :
       simp only [one_div, mul_inv_rev]
       rw [Real.exp_neg]
       rw [← gt_iff_lt]
-      simp
+      simp only [inv_inv, gt_iff_lt]
       grw [(intervalIntegral.integral_mono_on (g := (fun t => (∑ i ∈ Finset.range n, t ^ (2 * i) / ↑i.factorial) + (t ^ (2 * n) * (n + 1) / (n.factorial * n))) ) ?_ ?_ ?_ ?_)]
       .
 
@@ -216,37 +216,10 @@ theorem remark_after_corollary_11 :
           rw [add_mul]
           apply add_lt_add
           .
-            rw [Finset.sum_mul]
-            apply Finset.sum_lt_sum_of_nonempty
-            . simp [n]
-            . intro i hi
-              simp
-              field_simp
-              rw [← lt_div_iff₀ (by positivity)]
-              grw [pow_le_pow_of_le_one (m := 2 * i)]
-              .
-                field_simp
-                rw [← pow_mul]
-                rw [mul_div_assoc]
-                nth_rw 2 [← Real.rpow_natCast]
-                rw [← Real.rpow_sub_one]
-                simp
-                rw [mul_comm]
-                apply mul_lt_mul
-                . sorry
-                .
-                  rw [← Real.rpow_natCast]
-                  grw [Real.rpow_le_rpow_left_iff_of_base_lt_one]
-                  . norm_num
-                  . norm_num
-                  . norm_num
-                . norm_num
-                . norm_cast
-                  simp
-                . norm_num
-              . norm_num
-              . norm_num
-              . omega
+            simp
+            repeat rw [Finset.sum_range_succ]
+            simp [Nat.factorial]
+            norm_num
           .
             simp
             norm_num
