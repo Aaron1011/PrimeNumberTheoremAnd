@@ -417,7 +417,14 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
               
               rw [Measure.real_def]
               rw [MeasureTheory.measure_eq_measure_of_null_diff (t := Set.Ioc (↑↑y) (↑↑y + 1))]
-              . sorry
+              . 
+                simp [«θ».Stieltjes]
+                simp [theta_sub_eq]
+                split_ifs
+                .
+                  apply Real.log_nonneg
+                  simp
+                . simp
               . simp
               . 
                 simp
@@ -511,31 +518,105 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
         rw [MeasureTheory.integral_pos_iff_support_of_nonneg_ae] at hn
         . 
           simp at hn
+          by_cases n_eq: n = 0
+          . 
+            simp [n_eq] at hn
+            conv at hn =>
+              pattern _ ∩ _
+              rhs
+              equals ∅ =>
+                ext a
+                simp
+                intro ha a_le other
+                linarith
+            simp at hn
+          
           by_contra!
           conv at hn =>
             rhs
             arg 2
             rhs
-            equals ∅ =>
-              apply Disjoint.inter_eq
-              rw [Set.disjoint_left]
-              intro a ha
-              simp at this
-              simp at ha
+            equals (Set.Ioc ↑n x) =>
+              ext a
               simp
-              intro le_a
+              refine ⟨?_, ?_⟩
+              . 
+                intro ha
+                refine ⟨by grind, ?_⟩
+                grind
+              . 
+                intro ha
+                refine ⟨?_, ?_⟩
+                . 
+                  refine ⟨?_, ?_⟩
+                  . 
+                    grind
+                  . 
+                    simp only [coe_Ico, Set.mem_Ico, not_and_or] at this
+                    cases this
+                    . rename_i n_le
+                      simp at n_le
+                      simp [n_le]
+                      simp [n_le] at ha
+                      omega
+                    . rename_i n_le
+                      simp at n_le
+                      grw [ha.2]
+                      grw [Nat.lt_floor_add_one (a := x)]
+                      grw [n_le]
+      
+                . 
+                  refine ⟨?_, by grind⟩
+                  simp only [coe_Ico, Set.mem_Ico, not_and_or] at this
+                  have le_x: (2: ℕ ) ≤ x := by
+                    norm_cast
+                  
+                  apply Nat.le_floor at le_x
+                  conv =>
+                    lhs
+                    equals ↑(2: ℕ ) => simp
+                  grw [le_x]
+                  simp [n_eq] at this
+                  grw [this]
+                  linarith
+          have foo := MeasureTheory.measure_inter_null_of_null_right ((Function.support fun a ↦ |f a / Real.log a|)) (μ :=  «θ».Stieltjes.measure) (T := Set.Ioc (↑n) x)
+          have bar := foo.mt
+          specialize bar (by grind)
+          simp [«θ».Stieltjes] at bar
+          simp at this
+          specialize this (by omega)
+          by_cases floor_eq: ⌊x⌋₊ = n
+          . 
+            simp [← floor_eq] at bar
+            simp [theta_eq_theta_coe_floor] at bar
+          . 
+            simp at floor_eq
+            have floor_lt: ⌊x⌋₊ < n := by omega
+            apply Nat.lt_of_floor_lt at floor_lt
+            have other := theta_mono floor_lt.le
+            linarith
+            
+          
+
+              -- simp at this
+              -- grind
+              -- rw [Set.disjoint_left]
+              -- intro a ha
+              -- simp at this
+              -- simp at ha
+              -- simp
+              -- intro le_a
               
-              have n_nonzero: n ≠ 0 := by
-                by_contra foo
-                simp [foo] at ha
-                linarith
+              -- have n_nonzero: n ≠ 0 := by
+              --   by_contra foo
+              --   simp [foo] at ha
+              --   linarith
               
-              have le_n: 1 ≤ n := by omega
-              specialize this le_n
-              apply Nat.lt_of_floor_lt at this
-              grw [this]
-              exact ha.1
-          simp at hn
+              -- have le_n: 1 ≤ n := by omega
+              -- specialize this le_n
+              -- apply Nat.lt_of_floor_lt at this
+              -- grw [this]
+              -- exact ha.1
         .
           apply Filter.Eventually.of_forall
           intro y
