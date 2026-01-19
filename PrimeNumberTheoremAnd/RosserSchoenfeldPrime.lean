@@ -199,6 +199,31 @@ lemma theta_two: θ 2 = Real.log 2 := by
   . simp
   . simp
 
+lemma leftlim_theta_k_eq (k: ℕ): Function.leftLim (θ) (↑k + 1) = θ ↑k := by
+  rw [leftLim_eq_of_tendsto (y := θ ↑k)]
+  . exact Filter.NeBot.ne'
+  . 
+    rw [nhdsWithin_restrict (t := Set.Ioo ↑k ↑(k + 2))]
+    rw [Set.Iio_inter_Ioo]
+    apply tendsto_nhdsWithin_congr (f := fun _ => θ ↑k)
+    . intro y hy
+      simp only [cast_add, cast_one, min_self] at hy
+      have floor_k_eq: ⌊(k : ℝ)⌋₊ = ⌊(y: ℝ)⌋₊ := by
+        simp
+        simp at hy
+        rw [eq_comm]
+        rw [Nat.floor_eq_iff]
+        . 
+          grind
+        . linarith
+        
+      rw [Chebyshev.theta_eq_theta_coe_floor]
+      rw [floor_k_eq]
+      rw [← Chebyshev.theta_eq_theta_coe_floor]
+    . simp
+    . simp
+    . exact isOpen_Ioo  
+
   
 @[blueprint
   "rs-pre-413"
@@ -211,22 +236,7 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
   
-  -- have no_atoms: NoAtoms «θ».Stieltjes.measure := by
-  --   apply NoAtoms.mk
-  --   intro x
-  --   simp [«θ».Stieltjes]
-  --   rw [leftLim_eq_of_tendsto]
-  --   . 
-  --     exact Filter.NeBot.ne'
-  --   .
-  --     apply tendsto_nhdsWithin_of_tendsto_nhds
-  --     apply ContinuousAt.tendsto
-  --     apply Continuous.continuousAt
-  --     fun_prop
-    
-  
       
-  --rw [MeasureTheory.integral_Icc_eq_integral_Ioc]
   conv =>
     rhs
     arg 1
@@ -236,34 +246,6 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
       simp
       grind
 
-  have leftlim_theta_k_eq (k: ℕ): Function.leftLim (θ) (↑k + 1) = θ ↑k := by
-    rw [leftLim_eq_of_tendsto (y := θ ↑k)]
-    . exact Filter.NeBot.ne'
-    . 
-      rw [nhdsWithin_restrict (t := Set.Ioo ↑k ↑(k + 2))]
-      rw [Set.Iio_inter_Ioo]
-      apply tendsto_nhdsWithin_congr (f := fun _ => θ ↑k)
-      . intro y hy
-        simp only [cast_add, cast_one, min_self] at hy
-        have floor_k_eq: ⌊(k : ℝ)⌋₊ = ⌊(y: ℝ)⌋₊ := by
-          simp
-          simp at hy
-          rw [eq_comm]
-          rw [Nat.floor_eq_iff]
-          . 
-            grind
-          . linarith
-          
-        rw [Chebyshev.theta_eq_theta_coe_floor]
-        rw [floor_k_eq]
-        rw [← Chebyshev.theta_eq_theta_coe_floor]
-      . simp
-      . simp
-      . exact isOpen_Ioo  
-  
-  have leftlim_k_eq (k: ℕ): Function.leftLim (↑«θ».Stieltjes) (↑k + 1) = «θ».Stieltjes ↑k := by
-    simp [«θ».Stieltjes]
-    apply leftlim_theta_k_eq
   
   rw [MeasureTheory.setIntegral_union (by simp) (by simp) (by simp) ?_]
   simp
@@ -302,14 +284,13 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
               rw [Set.inter_comm]
               apply MeasureTheory.measure_inter_null_of_null_left
               . 
-                simp
-                rw [leftlim_k_eq]
+                simp [«θ».Stieltjes]
+                rw [leftlim_theta_k_eq]
               . 
                 simp
             .
-              simp
-              rw [leftlim_k_eq]
-              simp [↑«θ».Stieltjes]
+              simp [«θ».Stieltjes]
+              rw [leftlim_theta_k_eq]
               rw [theta_sub_eq]
               split_ifs
               . 
