@@ -533,9 +533,45 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
         
         
         rw [← Finset.sum_Ico_eq_sum_range (m := 2) (f := fun x => if Nat.Prime (x) then f ↑(x) else 0)]
-        rw [← Finset.sum_filter]
-        sorry
+        conv =>
+          rhs
+          arg 1
+          equals Finset.Icc 2 ⌊x⌋₊ =>
+            ext a
+            simp
         
+        rw [Finset.sum_filter]
+        simp [Finset.Iic_eq_Icc]
+        conv =>
+          lhs
+          rw [← Finset.sum_subset (s₁ := Finset.Icc 2 ⌊x⌋₊) (by
+            intro a ha
+            simp at ha
+            simp
+            omega
+          ) (by
+            intro a ha a_not
+            simp at a_not
+            simp at ha
+            have a_lt: a < 2 := by
+              omega
+            
+            have not_prime : ¬ Nat.Prime a := by
+              by_cases a_eq: a = 0
+              . 
+                simp [a_eq]
+                exact Nat.not_prime_zero
+              . 
+                by_cases a_eq: a = 1
+                .
+                  simp [a_eq]
+                  exact Nat.not_prime_one
+                .
+                  omega
+              
+            simp [not_prime]
+            
+          )]
       . 
         intro n hn
         simp at hn
