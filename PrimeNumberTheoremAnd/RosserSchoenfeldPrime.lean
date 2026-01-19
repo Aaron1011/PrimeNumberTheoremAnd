@@ -236,20 +236,9 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
   
-      
-  conv =>
-    rhs
-    arg 1
-    arg 2
-    equals {2} ∪ Set.Ioc 2 x =>
-      ext a
-      simp
-      grind
-
   
-  rw [MeasureTheory.setIntegral_union (by simp) (by simp) (by simp) ?_]
-  simp
-  rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((2: ℕ): ℝ) (↑⌊x⌋₊))]
+  
+  rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((1: ℕ): ℝ) (↑⌊x⌋₊))]
   . 
     rw [← intervalIntegral.integral_of_le]
     .
@@ -258,7 +247,6 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
         conv =>
           rhs
           rhs
-          arg 2
           intro k
           rw [intervalIntegral.integral_congr_ae_restrict (g := fun _ => (f (k + 1)) / (Real.log (k + 1))) (by
             -- StieltjesFunction.measure_Ioc
@@ -312,12 +300,10 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
         simp
         simp [«θ».Stieltjes]
         simp_rw [theta_sub_eq]
-        rw [ENNReal.toReal_ofReal]
         . 
           conv =>
             rhs
             rhs
-            arg 2
             intro x
             rw [ENNReal.toReal_ofReal (by
               split_ifs
@@ -329,23 +315,6 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           simp
           simp_rw [ite_div]
           simp
-          conv =>
-            rhs
-            pattern Function.leftLim _ _
-            arg 2
-            equals ↑(1: ℕ) + (1 : ℝ) =>
-              norm_cast
-          rw [leftlim_theta_k_eq]
-          simp
-          rw [theta_two, theta_one]
-          conv =>
-            rhs
-            lhs
-            equals (if Nat.Prime 2 then ((Real.log 2 - 0) * (f 2 / Real.log 2)) else 0) =>
-              simp [Nat.prime_two]
-              
-          
-
             
           
           
@@ -355,23 +324,22 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           ring
           conv =>
             rhs
-            rhs
             arg 1
             arg 1
-            equals ⌊x⌋₊ + 1 - 3 =>
+            equals ⌊x⌋₊ + 1 - 2 =>
               simp
           norm_num
           norm_cast
           -- TODO - why can't lean infer the function?
-          rw [← Finset.sum_Ico_eq_sum_range (m := 3) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
+          rw [← Finset.sum_Ico_eq_sum_range (m := 2) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
           norm_cast
           
-          have two_cast: (2: ℝ) = ↑(2: ℕ) := by
+          have one_cast: (1: ℝ) = ↑(1: ℕ) := by
             simp
           
-          rw [two_cast]
+          --rw [one_cast]
           
-          rw [← Finset.sum_eq_sum_Ico_succ_bot (a := 2) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
+          --rw [← Finset.sum_eq_sum_Ico_succ_bot (a := 2) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
           
           conv =>
             rhs
@@ -445,20 +413,23 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                   simp [not_prime]
               )]
             rw [← Finset.sum_filter]
-          . 
-            simp
-            apply Nat.le_floor
-            norm_cast
-          
-        . 
-          simp
-          apply Monotone.leftLim_le
-          exact theta_mono
-          simp
+
+
       . 
         apply Nat.le_floor
         norm_cast
+        linarith
       . intro k hk
+        by_cases k_eq: k = 1
+        .
+          rw [intervalIntegrable_iff]
+          apply IntegrableOn.of_measure_zero
+          simp [«θ».Stieltjes]
+          simp [k_eq]
+          norm_num
+          
+          rw [theta_eq_sum_Icc]
+          
         apply ContinuousOn.intervalIntegrable
         intro a ha
         
@@ -470,7 +441,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           have zero_lt: (0: ℝ) ≤  2 := by
             simp
           
-          have k_cast: (2: ℝ) ≤ ↑k := by
+          have k_cast: (1: ℝ) ≤ ↑k := by
             norm_cast
           
           linarith
@@ -486,7 +457,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             simp at hk
             by_contra!
             simp [this] at ha
-            omega
+            sorry
           . linarith
         
         
@@ -500,7 +471,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             simp
             simp at ha
             simp at hk
-            have two_le: 2 ≤ (k: ℝ) := by
+            have two_le: 1 ≤ (k: ℝ) := by
               norm_cast
               omega
             grw [two_le]
@@ -522,7 +493,16 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
       norm_cast
       apply Nat.le_floor
       norm_cast
+      linarith
   . 
+    intro a ha
+    simp at ha
+    simp
+    refine ⟨by linarith, ?_⟩
+    grw [ha.2]
+    
+    apply Nat.le_floor
+    apply Nat.le_floor
     rw [← MeasureTheory.measure_symmDiff_eq_zero_iff]
     rw [symmDiff_comm]
     rw [symmDiff_of_le]
@@ -566,34 +546,35 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
       grw [ha.2]
       apply Nat.floor_le
       linarith
-  . 
-    apply ContinuousOn.integrableOn_of_subset_isCompact (K := Set.Icc 2 x)
-    . intro a ha
-      have a_ne: a ≠ 0 := by
-        simp at ha
-        linarith
-      apply ContinuousWithinAt.div
-      .
-        apply hf.mono (t := Set.Icc _ _)
-        . 
-          intro a ha
-          simp
-          simp at ha
-          grind
-        . simpa using ha
-      . 
-        apply ContinuousAt.continuousWithinAt
-        fun_prop (disch := assumption)
-      . 
-        simp
-        refine ⟨?_, ?_, ?_⟩
-        . grind
-        . grind
-        . grind
-    . exact ConditionallyCompleteLinearOrder.isCompact_Icc 2 x
-    . simp
-    . exact Set.Ioc_subset_Icc_self
-    . simp
+
+
+    -- apply ContinuousOn.integrableOn_of_subset_isCompact (K := Set.Icc 2 x)
+    -- . intro a ha
+    --   have a_ne: a ≠ 0 := by
+    --     simp at ha
+    --     linarith
+    --   apply ContinuousWithinAt.div
+    --   .
+    --     apply hf.mono (t := Set.Icc _ _)
+    --     . 
+    --       intro a ha
+    --       simp
+    --       simp at ha
+    --       grind
+    --     . simpa using ha
+    --   . 
+    --     apply ContinuousAt.continuousWithinAt
+    --     fun_prop (disch := assumption)
+    --   . 
+    --     simp
+    --     refine ⟨?_, ?_, ?_⟩
+    --     . grind
+    --     . grind
+    --     . grind
+    -- . exact ConditionallyCompleteLinearOrder.isCompact_Icc 2 x
+    -- . simp
+    -- . exact Set.Ioc_subset_Icc_self
+    -- . simp
 
 #print axioms pre_413
 
