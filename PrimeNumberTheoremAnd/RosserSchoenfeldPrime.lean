@@ -173,6 +173,33 @@ lemma StieltjesFunction.finset_sum
 --       rw [hs]
 --       rw [Finset.sum_insert ha]
 
+
+lemma theta_sub_eq (k: ℕ): (θ (↑k + 1) - θ ↑k) = if Nat.Prime (k + 1) then Real.log (↑k + 1) else 0  := by
+  rw [Chebyshev.theta_eq_sum_Icc]
+  rw [Chebyshev.theta_eq_sum_Icc]
+  simp
+  simp [Nat.floor_add_one]
+  rw [Finset.sum_filter]
+  rw [Finset.sum_filter]
+  rw [Finset.sum_Icc_succ_top]
+  simp
+  simp
+
+lemma theta_one: θ 1 = 0 := by
+  simp [theta]
+  rw [Finset.sum_filter]
+  repeat rw [Finset.sum_Ioc_succ_top]
+  simp
+  
+lemma theta_two: θ 2 = Real.log 2 := by
+  simp [theta]
+  rw [Finset.sum_filter]
+  repeat rw [Finset.sum_Ioc_succ_top]
+  . simp [Nat.prime_two]
+  . simp
+  . simp
+
+  
 @[blueprint
   "rs-pre-413"
   (title := "RS-prime display before (4.13)")
@@ -208,6 +235,35 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
       ext a
       simp
       grind
+
+  have leftlim_theta_k_eq (k: ℕ): Function.leftLim (θ) (↑k + 1) = θ ↑k := by
+    rw [leftLim_eq_of_tendsto (y := θ ↑k)]
+    . exact Filter.NeBot.ne'
+    . 
+      rw [nhdsWithin_restrict (t := Set.Ioo ↑k ↑(k + 2))]
+      rw [Set.Iio_inter_Ioo]
+      apply tendsto_nhdsWithin_congr (f := fun _ => θ ↑k)
+      . intro y hy
+        simp only [cast_add, cast_one, min_self] at hy
+        have floor_k_eq: ⌊(k : ℝ)⌋₊ = ⌊(y: ℝ)⌋₊ := by
+          simp
+          simp at hy
+          rw [eq_comm]
+          rw [Nat.floor_eq_iff]
+          . 
+            grind
+          . linarith
+          
+        rw [Chebyshev.theta_eq_theta_coe_floor]
+        rw [floor_k_eq]
+        rw [← Chebyshev.theta_eq_theta_coe_floor]
+      . simp
+      . simp
+      . exact isOpen_Ioo  
+  
+  have leftlim_k_eq (k: ℕ): Function.leftLim (↑«θ».Stieltjes) (↑k + 1) = «θ».Stieltjes ↑k := by
+    simp [«θ».Stieltjes]
+    apply leftlim_theta_k_eq
   
   rw [MeasureTheory.setIntegral_union (by simp) (by simp) (by simp) ?_]
   simp
@@ -231,31 +287,7 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
               equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} =>
                 simp
                 
-            have leftlim_k_eq: Function.leftLim (↑«θ».Stieltjes) (↑k + 1) = «θ».Stieltjes ↑k := by
-              rw [leftLim_eq_of_tendsto (y := «θ».Stieltjes ↑k)]
-              . exact Filter.NeBot.ne'
-              . 
-                rw [nhdsWithin_restrict (t := Set.Ioo ↑k ↑(k + 2))]
-                rw [Set.Iio_inter_Ioo]
-                apply tendsto_nhdsWithin_congr (f := fun _ => «θ».Stieltjes ↑k)
-                . intro y hy
-                  simp only [cast_add, cast_one, min_self] at hy
-                  have floor_k_eq: ⌊(k : ℝ)⌋₊ = ⌊(y: ℝ)⌋₊ := by
-                    simp
-                    simp at hy
-                    rw [eq_comm]
-                    rw [Nat.floor_eq_iff]
-                    . 
-                      grind
-                    . linarith
-                    
-                  simp [«θ».Stieltjes]
-                  rw [Chebyshev.theta_eq_theta_coe_floor]
-                  rw [floor_k_eq]
-                  rw [← Chebyshev.theta_eq_theta_coe_floor]
-                . simp
-                . simp
-                . exact isOpen_Ioo
+
             
             rw [MeasureTheory.ae_restrict_union_eq]
             unfold Filter.EventuallyEq
@@ -278,14 +310,7 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
               simp
               rw [leftlim_k_eq]
               simp [↑«θ».Stieltjes]
-              rw [Chebyshev.theta_eq_sum_Icc]
-              rw [Chebyshev.theta_eq_sum_Icc]
-              simp
-              simp [Nat.floor_add_one]
-              rw [Finset.sum_filter]
-              rw [Finset.sum_filter]
-              rw [Finset.sum_Icc_succ_top]
-              simp
+              rw [theta_sub_eq]
               split_ifs
               . 
                 rw [MeasureTheory.Measure.ae_smul_measure_iff]
@@ -297,9 +322,124 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
                   apply Nat.Prime.two_le at k_succ_prime
                   grind
               . simp
-              . simp
           )]
             
+        simp
+        simp_rw [intervalIntegral.integral_const']
+        simp
+        simp_rw [MeasureTheory.measureReal_def]
+        simp
+        simp [«θ».Stieltjes]
+        simp_rw [theta_sub_eq]
+        rw [ENNReal.toReal_ofReal]
+        . 
+          conv =>
+            rhs
+            rhs
+            arg 2
+            intro x
+            rw [ENNReal.toReal_ofReal (by
+              split_ifs
+              . 
+                apply Real.log_nonneg
+                simp
+              . simp
+            )]
+          simp
+          simp_rw [ite_div]
+          simp
+          conv =>
+            rhs
+            pattern Function.leftLim _ _
+            arg 2
+            equals ↑(1: ℕ) + (1 : ℝ) =>
+              norm_cast
+          rw [leftlim_theta_k_eq]
+          simp
+          rw [theta_two, theta_one]
+          conv =>
+            rhs
+            lhs
+            equals (if Nat.Prime 2 then ((Real.log 2 - 0) * (f 2 / Real.log 2)) else 0) =>
+              simp [Nat.prime_two]
+              
+          
+
+            
+          
+          
+
+          rw [Finset.sum_Ico_eq_sum_range]
+          simp
+          ring
+          conv =>
+            rhs
+            rhs
+            arg 1
+            arg 1
+            equals ⌊x⌋₊ + 1 - 3 =>
+              simp
+          norm_num
+          norm_cast
+          -- TODO - why can't lean infer the function?
+          rw [← Finset.sum_Ico_eq_sum_range (m := 3) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
+          norm_cast
+          
+          have two_cast: (2: ℝ) = ↑(2: ℕ) := by
+            simp
+          
+          rw [two_cast]
+          
+          rw [← Finset.sum_eq_sum_Ico_succ_bot (a := 2) (f := fun a => if Nat.Prime (a) then Real.log ↑(a) * f ↑(a) * (Real.log ↑(a))⁻¹ else 0)]
+          
+          conv =>
+            rhs
+            arg 1
+            equals Finset.Icc 2 ⌊x⌋₊ =>
+              ext a
+              simp
+          
+          
+          rw [← Finset.sum_filter]
+          conv =>
+            lhs
+            rw [Finset.sum_filter]
+            rw [← Finset.sum_subset (s₁ := Finset.Icc 2 ⌊x⌋₊) (by
+              intro a ha
+              simp
+              simp at ha
+              linarith
+            ) (by
+              intro a a_mem ha
+              simp
+              intro a_prime
+              simp at a_mem
+              simp at ha
+              
+              
+              have a_lt: a < 2 := by
+                omega
+              
+              have not_prime : ¬ Nat.Prime a := by
+                by_cases a_eq: a = 0
+                . simp
+                . by_cases a_eq: a = 1
+                  simp
+                . linarith
+                
+              contradiction
+            )]
+          rw [add_comm]
+          rw [← Finset.sum_Icc_succ_top]
+          
+          
+        . 
+          simp
+          apply Monotone.leftLim_le
+          exact theta_mono
+          simp
+        
+        
         conv =>
           rhs
           rhs
