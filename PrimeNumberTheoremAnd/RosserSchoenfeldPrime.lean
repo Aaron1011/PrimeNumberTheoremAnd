@@ -264,7 +264,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             linarith
         )]
       simp
-      rw [tsum_eq_sum' (s := Finset.Icc 1 ⌊x⌋₊)]
+      rw [tsum_eq_sum' (s := Finset.Icc 1 ⌈x⌉₊)]
       . 
         
         conv =>
@@ -336,7 +336,96 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                   grind
           )]
         
-        sorry
+        
+        simp_rw [intervalIntegral.integral_const']
+        simp
+        nth_rw 2 [← Finset.sum_coe_sort]
+        conv =>
+          rhs
+          arg 2
+          intro y
+          arg 1
+          equals if Nat.Prime (y + 1) then Real.log (↑y + 1) else 0 =>
+            by_cases y_eq: y.val = 1
+            . 
+              simp [y_eq]
+              norm_num
+              conv =>
+                arg 1
+                arg 2
+                equals Set.Icc 2 2 =>
+                  ext a
+                  simp
+                  have foo := y.prop
+                  rw [Finset.mem_Icc] at foo
+                  grind
+              rw [Measure.real_def]
+              simp [«θ».Stieltjes]
+              simp [theta_two]
+              conv =>
+                lhs
+                arg 1
+                arg 1
+                rhs
+                arg 2
+                equals ↑(1: ℕ) + (1: ℝ) =>
+                  norm_num
+              rw [leftlim_theta_k_eq]
+              simp [theta_one]
+              rw [ENNReal.toReal_ofReal]
+              .
+                simp [Nat.prime_two]
+              . apply Real.log_nonneg
+                simp
+            .
+              conv =>
+                arg 1
+                arg 2
+                equals Set.Ioc ↑y.val (min x (↑y.val + (1: ℝ))) =>
+                  ext a
+                  simp
+                  have y_mem := y.property
+                  rw [Finset.mem_Icc] at y_mem
+                  refine ⟨?_, ?_⟩
+                  . intro hy
+                    simp at hy
+                    grind
+                  .
+                    intro hy
+                    simp at hy
+                    refine ⟨?_, ?_⟩
+                    .
+                      simp [hy.1]
+                      grind
+                    . 
+                      have two_le: (2: ℝ) ≤ y.val := by
+                        norm_cast
+                        omega
+                      simp [hy.2.1]
+                      grind
+              
+              by_cases y_eq: y = ⌊x⌋₊
+              . 
+                simp [y_eq]
+              
+                simp [Measure.real_def, «θ».Stieltjes]
+                rw [ENNReal.toReal_ofReal]
+                . 
+                  simp
+                  sorry
+                . simp
+                  
+              
+          
+      
+          
+          
+        
+        simp_rw [MeasureTheory.measureReal_def]
+        
+        simp
+        simp [«θ».Stieltjes]
+        simp_rw [theta_sub_eq]
         
       . 
         intro n hn
