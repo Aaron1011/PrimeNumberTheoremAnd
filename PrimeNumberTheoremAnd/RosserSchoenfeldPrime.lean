@@ -264,7 +264,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             linarith
         )]
       simp
-      rw [tsum_eq_sum' (s := Finset.Icc 1 ⌈x⌉₊)]
+      rw [tsum_eq_sum' (s := Finset.Icc 1 ⌊x⌋₊)]
       . 
         
         conv =>
@@ -378,6 +378,81 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
               . apply Real.log_nonneg
                 simp
             .
+
+            -- rw [← MeasureTheory.measure_symmDiff_eq_zero_iff]
+            -- rw [symmDiff_comm]
+            -- rw [symmDiff_of_le]
+            -- . 
+            --   simp
+            --   conv =>
+            --     lhs
+            --     arg 2
+            --     equals Set.Ioc ↑⌊x⌋₊ x =>
+            --       ext a
+            --       simp
+            --       refine ⟨?_, ?_⟩
+            --       . 
+            --         intro ha
+            --         grind
+            --       . 
+            --         intro ha
+            --         refine ⟨?_, ?_⟩
+            --         . 
+            --           refine ⟨?_, ha.2⟩
+                      
+                      
+            --           have floor_x_le: (2: ℝ) ≤ ⌊x⌋₊ := by
+            --             norm_cast
+            --             apply Nat.le_floor
+            --             norm_cast
+                      
+            --           grw [floor_x_le]
+            --           exact ha.1
+            --         . 
+            --           intro ha'
+            --           exact ha.1
+            --   simp
+            --   simp [«θ».Stieltjes]
+            --   rw [Chebyshev.theta_eq_theta_coe_floor]              
+              
+              rw [Measure.real_def]
+              rw [MeasureTheory.measure_eq_measure_of_null_diff (t := Set.Ioc (↑↑y) (↑↑y + 1))]
+              . sorry
+              . simp
+              . 
+                simp
+                by_cases y_lt: y.val < (⌊x⌋₊)
+                . 
+                  conv =>
+                    arg 1
+                    arg 2
+                    equals ∅ =>
+                      ext a
+                      simp
+                      intro ha hb
+                      have y_prop := y.property
+                      rw [Finset.mem_Icc] at y_prop
+                      have y_lt: (2: ℝ) ≤ y.val := by
+                        norm_cast
+                        omega
+                      refine ⟨?_, ?_⟩
+                      . 
+                        grw [y_lt]
+                        linarith
+                      . 
+                        
+                        
+                        grw [hb]
+                        rename_i bar
+                        rw [← Nat.add_one_le_iff] at bar
+                        norm_cast
+                        grw [bar]
+                        apply Nat.floor_le
+                        linarith
+                  simp
+                .
+                  conv => 
+              
               conv =>
                 arg 1
                 arg 2
