@@ -184,18 +184,136 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
   
-  have no_atoms: NoAtoms «θ».Stieltjes.measure := by
-    sorry
+  -- have no_atoms: NoAtoms «θ».Stieltjes.measure := by
+  --   apply NoAtoms.mk
+  --   intro x
+  --   simp [«θ».Stieltjes]
+  --   rw [leftLim_eq_of_tendsto]
+  --   . 
+  --     exact Filter.NeBot.ne'
+  --   .
+  --     apply tendsto_nhdsWithin_of_tendsto_nhds
+  --     apply ContinuousAt.tendsto
+  --     apply Continuous.continuousAt
+  --     fun_prop
+    
   
       
-  rw [MeasureTheory.integral_Icc_eq_integral_Ioc]
+  --rw [MeasureTheory.integral_Icc_eq_integral_Ioc]
+  conv =>
+    rhs
+    arg 1
+    arg 2
+    equals {2} ∪ Set.Ioc 2 x =>
+      ext a
+      simp
+      grind
+  
+  rw [MeasureTheory.setIntegral_union (by simp) (by simp) (by simp) ?_]
+  simp
   rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((2: ℕ): ℝ) (↑⌊x⌋₊))]
   . 
     rw [← intervalIntegral.integral_of_le]
     .
       rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
       . 
-        
+        conv =>
+          rhs
+          rhs
+          arg 2
+          intro k
+          rw [intervalIntegral.integral_congr_ae_restrict (g := fun _ => (f (k + 1)) / (Real.log (k + 1))) (by
+            -- StieltjesFunction.measure_Ioc
+            rw [Set.uIoc_of_le (by simp)]
+            conv =>
+              
+              pattern Set.Ioc _ _
+              equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} =>
+                simp
+                
+            have leftlim_k_eq: Function.leftLim (↑«θ».Stieltjes) (↑k + 1) = «θ».Stieltjes ↑k := by
+              rw [leftLim_eq_of_tendsto (y := «θ».Stieltjes ↑k)]
+              . exact Filter.NeBot.ne'
+              . 
+                rw [nhdsWithin_restrict (t := Set.Ioo ↑k ↑(k + 2))]
+                rw [Set.Iio_inter_Ioo]
+                apply tendsto_nhdsWithin_congr (f := fun _ => «θ».Stieltjes ↑k)
+                . intro y hy
+                  simp only [cast_add, cast_one, min_self] at hy
+                  have floor_k_eq: ⌊(k : ℝ)⌋₊ = ⌊(y: ℝ)⌋₊ := by
+                    simp
+                    simp at hy
+                    rw [eq_comm]
+                    rw [Nat.floor_eq_iff]
+                    . 
+                      grind
+                    . linarith
+                    
+                  simp [«θ».Stieltjes]
+                  rw [Chebyshev.theta_eq_theta_coe_floor]
+                  rw [floor_k_eq]
+                  rw [← Chebyshev.theta_eq_theta_coe_floor]
+                . simp
+                . simp
+                . exact isOpen_Ioo
+            
+            rw [MeasureTheory.ae_restrict_union_eq]
+            unfold Filter.EventuallyEq
+            rw [Filter.eventually_sup]
+            rw [← Filter.EventuallyEq]
+            refine ⟨?_, ?_⟩
+            . 
+              unfold Filter.EventuallyEq
+              rw [MeasureTheory.ae_iff]
+              
+              rw [MeasureTheory.Measure.restrict_apply']
+              rw [Set.inter_comm]
+              apply MeasureTheory.measure_inter_null_of_null_left
+              . 
+                simp
+                rw [leftlim_k_eq]
+              . 
+                simp
+            .
+              simp
+              rw [leftlim_k_eq]
+              simp [↑«θ».Stieltjes]
+              rw [Chebyshev.theta_eq_sum_Icc]
+              rw [Chebyshev.theta_eq_sum_Icc]
+              simp
+              simp [Nat.floor_add_one]
+              rw [Finset.sum_filter]
+              rw [Finset.sum_filter]
+              rw [Finset.sum_Icc_succ_top]
+              simp
+              split_ifs
+              . 
+                rw [MeasureTheory.Measure.ae_smul_measure_iff]
+                . simp
+                . simp
+                  apply Real.log_pos
+                  simp
+                  rename_i k_succ_prime
+                  apply Nat.Prime.two_le at k_succ_prime
+                  grind
+              . simp
+              . simp
+          )]
+            
+        conv =>
+          rhs
+          rhs
+          arg 2
+          intro k
+          conv =>
+            arg 2
+            equals (0: ℝ) + ↑k => simp
+          conv =>
+            arg 3
+            equals 0 + ↑k + (1: ℝ) =>
+              simp
+          
+          rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _ _).tsum_eq]
         sorry
       . 
         apply Nat.le_floor
@@ -303,73 +421,75 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
       linarith
       
 
-    conv =>
-      arg 1
-      arg 2
-      simp
+    -- conv =>
+    --   arg 1
+    --   arg 2
+    --   simp
 
       
-      equals Set.Icc (2: ℝ) ⌊x⌋₊ =>
-        ext a
-        simp
-        refine ⟨?_, ?_⟩
-        . 
-          intro ha
-          rw [Set.symmDiff_def] at ha
-          cases ha
-          . rename_i left
-            simp at left
-            have foo := left.2 left.1.1
-          refine ⟨?_, ?_⟩
-          . grind
-          . 
+    --   equals Set.Icc (2: ℝ) ⌊x⌋₊ =>
+    --     ext a
+    --     simp
+    --     refine ⟨?_, ?_⟩
+    --     . 
+    --       intro ha
+    --       rw [Set.symmDiff_def] at ha
+    --       cases ha
+    --       . rename_i left
+    --         simp at left
+    --         have foo := left.2 left.1.1
+    --       refine ⟨?_, ?_⟩
+    --       . grind
+    --       . 
             
-            have foo := ha.1
-          grind
-        sorry
-    simp
-    .
+    --         have foo := ha.1
+    --       grind
+    --     sorry
+    -- simp
+    -- .
       
-    . sorry
+    -- . sorry
 
   . 
-  rw [MeasureTheory.setIntegral_eq_of_subset_of_forall_diff_eq_zero ]
-  . sorry
-  . simp
-  . intro a ha
-    simp at ha
-    simp
-    refine ⟨?_, ?_⟩
-    . grind
-    . sorry
-  . 
-    intro a ha
+  --   simp
+  --   simp [«θ».Stieltjes, theta]
+  -- rw [MeasureTheory.setIntegral_eq_of_subset_of_forall_diff_eq_zero ]
+  -- . sorry
+  -- . simp
+  -- . intro a ha
+  --   simp at ha
+  --   simp
+  --   refine ⟨?_, ?_⟩
+  --   . grind
+  --   . sorry
+  -- . 
+  --   intro a ha
     
   
-  rw [← intervalIntegral.integral_of_le]
+  -- rw [← intervalIntegral.integral_of_le]
   
   
   
-  conv =>
-    rhs
-    arg 2
-    equals ↑(2: ℕ) => simp
+  -- conv =>
+  --   rhs
+  --   arg 2
+  --   equals ↑(2: ℕ) => simp
     
   
   
-  rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
-  conv =>
-    rhs
-    rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _).tsum_eq]
-  unfold θ.Stieltjes
-  unfold theta
-  conv =>
-    rhs
-    arg 1
+  -- rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
+  -- conv =>
+  --   rhs
+  --   rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _).tsum_eq]
+  -- unfold θ.Stieltjes
+  -- unfold theta
+  -- conv =>
+  --   rhs
+  --   arg 1
     
-    rw [← StieltjesFunction.finset_sum]
+  --   rw [← StieltjesFunction.finset_sum]
   
-  sorry
+  -- sorry
 
 @[blueprint
   "rs-413"
