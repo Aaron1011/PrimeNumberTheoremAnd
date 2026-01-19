@@ -237,73 +237,72 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
   
       
+  rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _ 0).tsum_eq]
+  .
+    rw [tsum_of_nat_of_neg_add_one]
+    . 
+      conv =>
+        rhs
+        rhs
+        arg 1
+        intro n
+        rw [intervalIntegral_of]
+        -- MeasureTheory.integral_zero_measure
+      sorry
+    . sorry
+    . sorry
+  . sorry
+  
+  
   conv =>
     rhs
-    arg 1
+    rhs
     arg 2
-    equals {2} ∪ Set.Ioc 2 x =>
-      ext a
-      simp
-      grind
+    intro k
+    rw [intervalIntegral.integral_congr_ae_restrict (g := fun _ => (f (k + 1)) / (Real.log (k + 1))) (by
+      -- StieltjesFunction.measure_Ioc
+      rw [Set.uIoc_of_le (by simp)]
+      conv =>
+        
+        pattern Set.Ioc _ _
+        equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} =>
+          simp
+          
 
-  
-  rw [MeasureTheory.setIntegral_union (by simp) (by simp) (by simp) ?_]
-  simp
-  rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((2: ℕ): ℝ) (↑⌊x⌋₊))]
-  . 
-    rw [← intervalIntegral.integral_of_le]
-    .
-      rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
+      
+      rw [MeasureTheory.ae_restrict_union_eq]
+      unfold Filter.EventuallyEq
+      rw [Filter.eventually_sup]
+      rw [← Filter.EventuallyEq]
+      refine ⟨?_, ?_⟩
       . 
-        conv =>
-          rhs
-          rhs
-          arg 2
-          intro k
-          rw [intervalIntegral.integral_congr_ae_restrict (g := fun _ => (f (k + 1)) / (Real.log (k + 1))) (by
-            -- StieltjesFunction.measure_Ioc
-            rw [Set.uIoc_of_le (by simp)]
-            conv =>
-              
-              pattern Set.Ioc _ _
-              equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} =>
-                simp
-                
-
-            
-            rw [MeasureTheory.ae_restrict_union_eq]
-            unfold Filter.EventuallyEq
-            rw [Filter.eventually_sup]
-            rw [← Filter.EventuallyEq]
-            refine ⟨?_, ?_⟩
-            . 
-              unfold Filter.EventuallyEq
-              rw [MeasureTheory.ae_iff]
-              
-              rw [MeasureTheory.Measure.restrict_apply']
-              rw [Set.inter_comm]
-              apply MeasureTheory.measure_inter_null_of_null_left
-              . 
-                simp [«θ».Stieltjes]
-                rw [leftlim_theta_k_eq]
-              . 
-                simp
-            .
-              simp [«θ».Stieltjes]
-              rw [leftlim_theta_k_eq]
-              rw [theta_sub_eq]
-              split_ifs
-              . 
-                rw [MeasureTheory.Measure.ae_smul_measure_iff]
-                . simp
-                . simp
-                  apply Real.log_pos
-                  simp
-                  rename_i k_succ_prime
-                  apply Nat.Prime.two_le at k_succ_prime
-                  grind
-              . simp
-          )]
+        unfold Filter.EventuallyEq
+        rw [MeasureTheory.ae_iff]
+        
+        rw [MeasureTheory.Measure.restrict_apply']
+        rw [Set.inter_comm]
+        apply MeasureTheory.measure_inter_null_of_null_left
+        . 
+          simp [«θ».Stieltjes]
+          rw [leftlim_theta_k_eq]
+        . 
+          simp
+      .
+        simp [«θ».Stieltjes]
+        rw [leftlim_theta_k_eq]
+        rw [theta_sub_eq]
+        split_ifs
+        . 
+          rw [MeasureTheory.Measure.ae_smul_measure_iff]
+          . simp
+          . simp
+            apply Real.log_pos
+            simp
+            rename_i k_succ_prime
+            apply Nat.Prime.two_le at k_succ_prime
+            grind
+        . simp
+    )]
             
         simp
         simp_rw [intervalIntegral.integral_const']
