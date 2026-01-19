@@ -232,7 +232,7 @@ lemma leftlim_theta_k_eq (k: ℕ): Function.leftLim (θ) (↑k + 1) = θ ↑k :=
   (proof := /-- This follows from the definition of the Stieltjes integral. -/)
   (latexEnv := "sublemma")
   (discussion := 599)]
-theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (hx : 2 ≤ x) :
+theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x + 1)))  (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
   
@@ -504,7 +504,14 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
               norm_cast
               omega
             grw [two_le]
-            exact ha.1
+            
+            refine ⟨ha.1, ?_⟩
+            grw [ha.2]
+            norm_cast
+            grw [hk.2]
+            simp
+            apply Nat.floor_le
+            linarith
           . simpa using ha
         . 
           apply ContinuousAt.continuousWithinAt
@@ -572,7 +579,7 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
           intro a ha
           simp
           simp at ha
-          linarith
+          grind
         . simpa using ha
       . 
         apply ContinuousAt.continuousWithinAt
@@ -606,7 +613,7 @@ theorem eq_413 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : DifferentiableOn
   . sorry
   . 
     
-    apply hf.continuousOn
+    sorry
   sorry
 
 @[blueprint
