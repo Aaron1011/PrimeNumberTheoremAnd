@@ -190,7 +190,73 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
       
   rw [MeasureTheory.integral_Icc_eq_integral_Ioc]
   rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((2: ℕ): ℝ) (↑⌊x⌋₊))]
-  . sorry
+  . 
+    rw [← intervalIntegral.integral_of_le]
+    .
+      rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
+      . 
+        
+        sorry
+      . 
+        apply Nat.le_floor
+        norm_cast
+      . intro k hk
+        apply ContinuousOn.intervalIntegrable
+        intro a ha
+        
+        have a_pos: 0 < a := by
+          simp at ha
+          simp at hk
+          have foo := hk.1
+          have bar := ha.1
+          have zero_lt: (0: ℝ) ≤  2 := by
+            simp
+          
+          have k_cast: (2: ℝ) ≤ ↑k := by
+            norm_cast
+          
+          linarith
+          
+        
+        have a_ne : a ≠ 0 := by linarith        
+        have log_a_ne: Real.log a  ≠ 0 := by
+          simp
+          refine ⟨?_, ?_, ?_⟩
+          . positivity
+          .
+            simp at ha
+            simp at hk
+            by_contra!
+            simp [this] at ha
+            omega
+          . linarith
+        
+        
+        apply ContinuousWithinAt.div
+        .
+          simp
+          
+          apply hf.mono (t := Set.Icc _ _)
+          . 
+            intro a ha
+            simp
+            simp at ha
+            simp at hk
+            have two_le: 2 ≤ (k: ℝ) := by
+              norm_cast
+              omega
+            grw [two_le]
+            exact ha.1
+          . simpa using ha
+        . 
+          apply ContinuousAt.continuousWithinAt
+          fun_prop (disch := assumption)
+        . 
+          exact log_a_ne
+    . 
+      norm_cast
+      apply Nat.le_floor
+      norm_cast
   . 
     rw [← MeasureTheory.measure_symmDiff_eq_zero_iff]
     rw [symmDiff_comm]
