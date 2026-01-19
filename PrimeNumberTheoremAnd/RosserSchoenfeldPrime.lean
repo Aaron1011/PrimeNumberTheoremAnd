@@ -49,6 +49,130 @@ noncomputable def θ.Stieltjes : StieltjesFunction ℝ := {
       simp [floor_of_nonpos hx, theta_eq_theta_coe_floor y, floor_eq_zero.mpr hy.2]
 }
 
+-- TODO - upstream to mathlib (check that it doesn't already exist)
+lemma monotone_finest_sum  {α : Type*} {β : Type*} [AddCommMonoid α] [Preorder α] [Preorder β] [AddLeftMono α] [AddRightMono α]
+  {ι: Type*} [Fintype ι] (f: ι → (β → α)) (hf: ∀ i, Monotone (f i)):
+  Monotone (fun x => (∑ i, (f i) x)) := by
+  
+    classical
+    refine Finset.induction_on Finset.univ ?_ ?_
+    .
+      simp
+      exact monotone_const
+    . 
+      intro a s ha hs
+      simp_rw [Finset.sum_insert ha]
+      apply Monotone.add
+      . apply hf
+      . apply hs
+  
+
+
+lemma StieltjesFunction.finset_sum_set
+  {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R] [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
+  {ι : Type*} [Fintype ι] (f: ι → (StieltjesFunction R))
+  (hf: ∀ i, Monotone (f i))
+  (hf': ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x):
+  (∑ i ∈ Finset.univ, f i) = {
+    toFun := fun a => ∑ i, (f i) a,
+    mono' := by
+      conv =>
+        arg 1
+        equals (fun a => (∑ i, (f i) a)) =>
+          ext x
+          simp
+           
+      apply monotone_finest_sum _ hf
+    right_continuous' := by
+      classical
+      intro x
+      refine Finset.induction_on Finset.univ ?_ ?_
+      . 
+        simp
+        fun_prop
+      . intro i s hi hs
+        simp_rw [Finset.sum_insert hi]
+        apply ContinuousWithinAt.add
+        . 
+          apply hf'
+        . apply hs
+  } := by
+  
+  ext x
+  simp
+  classical
+  refine Finset.induction_on Finset.univ ?_ ?_
+  . 
+    simp
+  . intro i s hi hs
+    rw [Finset.sum_insert hi]
+    simp
+    rw [Finset.sum_insert hi]
+    simp
+    exact hs
+
+lemma StieltjesFunction.finset_sum
+  {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R] [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
+  {ι : Type*} [Fintype ι] (f: ι → (StieltjesFunction R))
+  (hf: ∀ i, Monotone (f i))
+  (hf': ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x):
+  (∑ i ∈ Finset.univ, f i) = {
+    toFun := fun a => ∑ i, (f i) a,
+    mono' := by
+      conv =>
+        arg 1
+        equals (fun a => (∑ i, (f i) a)) =>
+          ext x
+          simp
+           
+      apply monotone_finest_sum _ hf
+    right_continuous' := by
+      classical
+      intro x
+      refine Finset.induction_on Finset.univ ?_ ?_
+      . 
+        simp
+        fun_prop
+      . intro i s hi hs
+        simp_rw [Finset.sum_insert hi]
+        apply ContinuousWithinAt.add
+        . 
+          apply hf'
+        . apply hs
+  } := by
+  
+  ext x
+  simp
+  classical
+  refine Finset.induction_on Finset.univ ?_ ?_
+  . 
+    simp
+  . intro i s hi hs
+    rw [Finset.sum_insert hi]
+    simp
+    rw [Finset.sum_insert hi]
+    simp
+    exact hs
+    
+      
+
+-- lemma StieltjesFunction.measure_finset_add
+--   {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R] [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
+--   {ι A : Type*} [Fintype ι] [Fintype A] (f: (StieltjesFunction ℝ))
+--   (s: R → Finset ℕ):
+--   ({ toFun := fun x => (∑ i ∈ (s x), f i), mono' := sorry, right_continuous' := sorry } : (StieltjesFunction R)).measure
+--     = fun x => ∑ i ∈ (s x), f.measure := by
+    
+--     classical
+--     refine Finset.induction_on Finset.univ ?_ ?_
+--     . simp
+--     . 
+--       intro a s ha hs
+--       rw [Finset.sum_insert ha]
+--       rw [StieltjesFunction.measure_add]
+--       rw [hs]
+--       rw [Finset.sum_insert ha]
+
 @[blueprint
   "rs-pre-413"
   (title := "RS-prime display before (4.13)")
@@ -58,7 +182,128 @@ noncomputable def θ.Stieltjes : StieltjesFunction ℝ := {
   (discussion := 599)]
 theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
-      ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by sorry
+      ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
+  
+  have no_atoms: NoAtoms «θ».Stieltjes.measure := by
+    sorry
+  
+      
+  rw [MeasureTheory.integral_Icc_eq_integral_Ioc]
+  rw [MeasureTheory.setIntegral_congr_set (t := Set.Ioc ((2: ℕ): ℝ) (↑⌊x⌋₊))]
+  . sorry
+  . 
+    rw [← MeasureTheory.measure_symmDiff_eq_zero_iff]
+    rw [symmDiff_comm]
+    rw [symmDiff_of_le]
+    . 
+      simp
+      conv =>
+        lhs
+        arg 2
+        equals Set.Ioc ↑⌊x⌋₊ x =>
+          ext a
+          simp
+          refine ⟨?_, ?_⟩
+          . 
+            intro ha
+            grind
+          . 
+            intro ha
+            refine ⟨?_, ?_⟩
+            . 
+              refine ⟨?_, ha.2⟩
+              
+              
+              have floor_x_le: (2: ℝ) ≤ ⌊x⌋₊ := by
+                norm_cast
+                apply Nat.le_floor
+                norm_cast
+              
+              grw [floor_x_le]
+              exact ha.1
+            . 
+              intro ha'
+              exact ha.1
+      simp
+      simp [«θ».Stieltjes]
+      rw [Chebyshev.theta_eq_theta_coe_floor]
+    . 
+      intro a ha
+      simp
+      simp at ha
+      refine ⟨ha.1, ?_⟩
+      grw [ha.2]
+      apply Nat.floor_le
+      linarith
+      
+
+    conv =>
+      arg 1
+      arg 2
+      simp
+
+      
+      equals Set.Icc (2: ℝ) ⌊x⌋₊ =>
+        ext a
+        simp
+        refine ⟨?_, ?_⟩
+        . 
+          intro ha
+          rw [Set.symmDiff_def] at ha
+          cases ha
+          . rename_i left
+            simp at left
+            have foo := left.2 left.1.1
+          refine ⟨?_, ?_⟩
+          . grind
+          . 
+            
+            have foo := ha.1
+          grind
+        sorry
+    simp
+    .
+      
+    . sorry
+
+  . 
+  rw [MeasureTheory.setIntegral_eq_of_subset_of_forall_diff_eq_zero ]
+  . sorry
+  . simp
+  . intro a ha
+    simp at ha
+    simp
+    refine ⟨?_, ?_⟩
+    . grind
+    . sorry
+  . 
+    intro a ha
+    
+  
+  rw [← intervalIntegral.integral_of_le]
+  
+  
+  
+  conv =>
+    rhs
+    arg 2
+    equals ↑(2: ℕ) => simp
+    
+  
+  
+  rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
+  conv =>
+    rhs
+    rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _).tsum_eq]
+  unfold θ.Stieltjes
+  unfold theta
+  conv =>
+    rhs
+    arg 1
+    
+    rw [← StieltjesFunction.finset_sum]
+  
+  sorry
 
 @[blueprint
   "rs-413"
@@ -70,6 +315,13 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
 theorem eq_413 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : DifferentiableOn ℝ f (Set.Icc 2 x)) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p = f x * θ x / log x -
       ∫ y in 2..x, θ y * deriv (fun t ↦ f t / log t) y := by
+  
+  
+  rw [pre_413]
+  . sorry
+  . 
+    
+    apply hf.continuousOn
   sorry
 
 @[blueprint
