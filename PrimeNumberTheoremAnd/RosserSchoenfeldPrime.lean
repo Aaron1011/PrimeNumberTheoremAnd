@@ -502,11 +502,39 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           
           
         
-        simp_rw [MeasureTheory.measureReal_def]
+        simp only [ite_mul, zero_mul]
+        conv =>
+          rhs
+          arg 2
+          intro y
+          arg 2
+          equals f (↑↑y + 1) =>
+            have foo : Real.log (y + 1 ) ≠ 0 := by
+              simp
+              norm_cast
+              simp
+              have foo := y.property
+              rw [Finset.mem_Ico] at foo
+              omega
+            field_simp [foo]
+          
+        rw [Finset.sum_coe_sort (f := fun y => (if Nat.Prime (y + 1) then (f (↑y + 1)) else 0))]
         
+        rw [Finset.sum_Ico_eq_sum_range]
         simp
-        simp [«θ».Stieltjes]
-        simp_rw [theta_sub_eq]
+        norm_cast
+        ring
+        conv =>
+          rhs
+          arg 1
+          arg 1
+          equals  ⌊x⌋₊ + 1 - 2 =>
+            simp
+        
+        
+        rw [← Finset.sum_Ico_eq_sum_range (m := 2) (f := fun x => if Nat.Prime (x) then f ↑(x) else 0)]
+        rw [← Finset.sum_filter]
+        sorry
         
       . 
         intro n hn
