@@ -422,39 +422,58 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
               
               have not_prime : ¬ Nat.Prime a := by
                 by_cases a_eq: a = 0
-                . simp
-                . by_cases a_eq: a = 1
-                  simp
-                . linarith
+                . 
+                  simp [a_eq]
+                  exact Nat.not_prime_zero
+                . 
+                  by_cases a_eq: a = 1
+                  .
+                    simp [a_eq]
+                    exact Nat.not_prime_one
+                  .
+                    omega
                 
               contradiction
             )]
-          rw [add_comm]
-          rw [← Finset.sum_Icc_succ_top]
           
+          . 
+            rw [← Finset.sum_filter]
+            field_simp
+            conv =>
+              rhs
+              rw [Finset.sum_filter]
+              rw [Finset.sum_congr (s₂ := Icc 2 ⌊x⌋₊) (g := fun a => if Nat.Prime a then f ↑a else 0) (by simp) (by
+                intro x hx
+                split_ifs
+                .
+                  simp
+                  split_ifs
+                  .
+                    have log_nonzero: Real.log x ≠ 0 := by
+                      simp
+                      simp at hx
+                      refine ⟨?_, ?_, ?_⟩
+                      . 
+                        grind
+                      . grind
+                      . 
+                        norm_cast
+                      
+                    field_simp
+                . rename_i not_prime
+                  simp [not_prime]
+              )]
+            rw [← Finset.sum_filter]
+          . 
+            simp
+            apply Nat.le_floor
+            norm_cast
           
         . 
           simp
           apply Monotone.leftLim_le
           exact theta_mono
           simp
-        
-        
-        conv =>
-          rhs
-          rhs
-          arg 2
-          intro k
-          conv =>
-            arg 2
-            equals (0: ℝ) + ↑k => simp
-          conv =>
-            arg 3
-            equals 0 + ↑k + (1: ℝ) =>
-              simp
-          
-          rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _ _).tsum_eq]
-        sorry
       . 
         apply Nat.le_floor
         norm_cast
@@ -559,77 +578,36 @@ theorem pre_413 {f : ℝ → ℝ} (hf : ContinuousOn f (Set.Ici 2)) {x : ℝ} (h
       grw [ha.2]
       apply Nat.floor_le
       linarith
-      
-
-    -- conv =>
-    --   arg 1
-    --   arg 2
-    --   simp
-
-      
-    --   equals Set.Icc (2: ℝ) ⌊x⌋₊ =>
-    --     ext a
-    --     simp
-    --     refine ⟨?_, ?_⟩
-    --     . 
-    --       intro ha
-    --       rw [Set.symmDiff_def] at ha
-    --       cases ha
-    --       . rename_i left
-    --         simp at left
-    --         have foo := left.2 left.1.1
-    --       refine ⟨?_, ?_⟩
-    --       . grind
-    --       . 
-            
-    --         have foo := ha.1
-    --       grind
-    --     sorry
-    -- simp
-    -- .
-      
-    -- . sorry
-
   . 
-  --   simp
-  --   simp [«θ».Stieltjes, theta]
-  -- rw [MeasureTheory.setIntegral_eq_of_subset_of_forall_diff_eq_zero ]
-  -- . sorry
-  -- . simp
-  -- . intro a ha
-  --   simp at ha
-  --   simp
-  --   refine ⟨?_, ?_⟩
-  --   . grind
-  --   . sorry
-  -- . 
-  --   intro a ha
-    
-  
-  -- rw [← intervalIntegral.integral_of_le]
-  
-  
-  
-  -- conv =>
-  --   rhs
-  --   arg 2
-  --   equals ↑(2: ℕ) => simp
-    
-  
-  
-  -- rw [← intervalIntegral.sum_integral_adjacent_intervals_Ico]
-  -- conv =>
-  --   rhs
-  --   rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _).tsum_eq]
-  -- unfold θ.Stieltjes
-  -- unfold theta
-  -- conv =>
-  --   rhs
-  --   arg 1
-    
-  --   rw [← StieltjesFunction.finset_sum]
-  
-  -- sorry
+    apply ContinuousOn.integrableOn_of_subset_isCompact (K := Set.Icc 2 x)
+    . intro a ha
+      have a_ne: a ≠ 0 := by
+        simp at ha
+        linarith
+      apply ContinuousWithinAt.div
+      .
+        apply hf.mono (t := Set.Icc _ _)
+        . 
+          intro a ha
+          simp
+          simp at ha
+          linarith
+        . simpa using ha
+      . 
+        apply ContinuousAt.continuousWithinAt
+        fun_prop (disch := assumption)
+      . 
+        simp
+        refine ⟨?_, ?_, ?_⟩
+        . grind
+        . grind
+        . grind
+    . exact ConditionallyCompleteLinearOrder.isCompact_Icc 2 x
+    . simp
+    . exact Set.Ioc_subset_Icc_self
+    . simp
+
+#print axioms pre_413
 
 @[blueprint
   "rs-413"
