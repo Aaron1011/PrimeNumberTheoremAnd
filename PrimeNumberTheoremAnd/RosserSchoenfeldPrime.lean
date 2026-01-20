@@ -378,43 +378,6 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
               . apply Real.log_nonneg
                 simp
             .
-
-            -- rw [← MeasureTheory.measure_symmDiff_eq_zero_iff]
-            -- rw [symmDiff_comm]
-            -- rw [symmDiff_of_le]
-            -- . 
-            --   simp
-            --   conv =>
-            --     lhs
-            --     arg 2
-            --     equals Set.Ioc ↑⌊x⌋₊ x =>
-            --       ext a
-            --       simp
-            --       refine ⟨?_, ?_⟩
-            --       . 
-            --         intro ha
-            --         grind
-            --       . 
-            --         intro ha
-            --         refine ⟨?_, ?_⟩
-            --         . 
-            --           refine ⟨?_, ha.2⟩
-                      
-                      
-            --           have floor_x_le: (2: ℝ) ≤ ⌊x⌋₊ := by
-            --             norm_cast
-            --             apply Nat.le_floor
-            --             norm_cast
-                      
-            --           grw [floor_x_le]
-            --           exact ha.1
-            --         . 
-            --           intro ha'
-            --           exact ha.1
-            --   simp
-            --   simp [«θ».Stieltjes]
-            --   rw [Chebyshev.theta_eq_theta_coe_floor]              
-              
               rw [Measure.real_def]
               rw [MeasureTheory.measure_eq_measure_of_null_diff (t := Set.Ioc (↑↑y) (↑↑y + 1))]
               . 
@@ -659,28 +622,6 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             apply Nat.lt_of_floor_lt at floor_lt
             have other := theta_mono floor_lt.le
             linarith
-            
-          
-
-              -- simp at this
-              -- grind
-              -- rw [Set.disjoint_left]
-              -- intro a ha
-              -- simp at this
-              -- simp at ha
-              -- simp
-              -- intro le_a
-              
-              -- have n_nonzero: n ≠ 0 := by
-              --   by_contra foo
-              --   simp [foo] at ha
-              --   linarith
-              
-              -- have le_n: 1 ≤ n := by omega
-              -- specialize this le_n
-              -- apply Nat.lt_of_floor_lt at this
-              -- grw [this]
-              -- exact ha.1
         .
           apply Filter.Eventually.of_forall
           intro y
@@ -688,47 +629,33 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
         . 
           apply MeasureTheory.Integrable.of_integral_ne_zero
           grind
-
-      
-              
-      
-      
-  
-
-            
-     
-      
     . 
       sorry
     . sorry
   . 
-    apply ContinuousOn.integrableOn_of_subset_isCompact (K := Set.Icc 2 x)
-    . intro a ha
-      have a_ne: a ≠ 0 := by
-        simp at ha
-        linarith
-      apply ContinuousWithinAt.div
-      .
-        apply hf.mono (t := Set.Icc _ _)
-        . 
-          intro a ha
-          simp
-          simp at ha
-          grind
-        . simpa using ha
+    apply ContinuousOn.integrableOn_Icc
+    intro a ha
+    have a_ne: a ≠ 0 := by
+      simp at ha
+      linarith
+    apply ContinuousWithinAt.div
+    .
+      apply hf.mono (t := Set.Icc _ _)
       . 
-        apply ContinuousAt.continuousWithinAt
-        fun_prop (disch := assumption)
-      . 
+        intro a ha
         simp
-        refine ⟨?_, ?_, ?_⟩
-        . grind
-        . grind
-        . grind
-    . exact ConditionallyCompleteLinearOrder.isCompact_Icc 2 x
-    . simp
-    . simp
-    . simp
+        simp at ha
+        grind
+      . simpa using ha
+    . 
+      apply ContinuousAt.continuousWithinAt
+      fun_prop (disch := assumption)
+    . 
+      simp
+      refine ⟨?_, ?_, ?_⟩
+      . grind
+      . grind
+      . grind
 
 #print axioms pre_413
 
