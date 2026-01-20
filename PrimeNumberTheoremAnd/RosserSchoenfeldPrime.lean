@@ -50,109 +50,96 @@ noncomputable def θ.Stieltjes : StieltjesFunction ℝ := {
 }
 
 -- TODO - upstream to mathlib (check that it doesn't already exist)
-lemma monotone_finest_sum  {α : Type*} {β : Type*} [AddCommMonoid α] [Preorder α] [Preorder β] [AddLeftMono α] [AddRightMono α]
-  {ι: Type*} [Fintype ι] (f: ι → (β → α)) (hf: ∀ i, Monotone (f i)):
-  Monotone (fun x => (∑ i, (f i) x)) := by
-  
-    classical
-    refine Finset.induction_on Finset.univ ?_ ?_
-    .
-      simp
-      exact monotone_const
-    . 
-      intro a s ha hs
-      simp_rw [Finset.sum_insert ha]
-      apply Monotone.add
-      . apply hf
-      . apply hs
+lemma monotone_finest_sum {α : Type*} {β : Type*} [AddCommMonoid α] [Preorder α] [Preorder β]
+    [AddLeftMono α] [AddRightMono α] {ι : Type*} [Fintype ι] (f : ι → (β → α))
+    (hf : ∀ i, Monotone (f i)) : Monotone (fun x => (∑ i, (f i) x)) := by
+  classical
+  refine Finset.induction_on Finset.univ ?_ ?_
+  · simp only [sum_empty]
+    exact monotone_const
+  · intro a s ha hs
+    simp_rw [Finset.sum_insert ha]
+    apply Monotone.add
+    · apply hf
+    · apply hs
   
 
 
 lemma StieltjesFunction.finset_sum_set
-  {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R] [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
-  {ι : Type*} [Fintype ι] (f: ι → (StieltjesFunction R))
-  (hf: ∀ i, Monotone (f i))
-  (hf': ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x):
-  (∑ i ∈ Finset.univ, f i) = {
-    toFun := fun a => ∑ i, (f i) a,
-    mono' := by
-      conv =>
-        arg 1
-        equals (fun a => (∑ i, (f i) a)) =>
-          ext x
-          simp
-           
-      apply monotone_finest_sum _ hf
-    right_continuous' := by
-      classical
-      intro x
-      refine Finset.induction_on Finset.univ ?_ ?_
-      . 
-        simp
-        fun_prop
-      . intro i s hi hs
-        simp_rw [Finset.sum_insert hi]
-        apply ContinuousWithinAt.add
-        . 
-          apply hf'
-        . apply hs
-  } := by
-  
+    {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R]
+    [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
+    {ι : Type*} [Fintype ι] (f : ι → (StieltjesFunction R))
+    (hf : ∀ i, Monotone (f i))
+    (hf' : ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x) :
+    (∑ i ∈ Finset.univ, f i) = {
+      toFun := fun a => ∑ i, (f i) a,
+      mono' := by
+        conv =>
+          arg 1
+          equals (fun a => (∑ i, (f i) a)) =>
+            ext x
+            rfl
+        apply monotone_finest_sum _ hf
+      right_continuous' := by
+        classical
+        intro x
+        refine Finset.induction_on Finset.univ ?_ ?_
+        · simp only [sum_empty]
+          fun_prop
+        · intro i s hi hs
+          simp_rw [Finset.sum_insert hi]
+          apply ContinuousWithinAt.add
+          · apply hf'
+          · apply hs
+    } := by
   ext x
-  simp
+  simp only []
   classical
   refine Finset.induction_on Finset.univ ?_ ?_
-  . 
-    simp
-  . intro i s hi hs
+  · simp only [sum_empty]
+    rfl
+  · intro i s hi hs
     rw [Finset.sum_insert hi]
-    simp
-    rw [Finset.sum_insert hi]
-    simp
-    exact hs
+    simp only [StieltjesFunction.add_apply]
+    rw [Finset.sum_insert hi, hs]
 
 lemma StieltjesFunction.finset_sum
-  {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R] [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
-  {ι : Type*} [Fintype ι] (f: ι → (StieltjesFunction R))
-  (hf: ∀ i, Monotone (f i))
-  (hf': ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x):
-  (∑ i ∈ Finset.univ, f i) = {
+    {R : Type*} [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [CompactIccSpace R]
+    [MeasurableSpace R] [BorelSpace R] [SecondCountableTopology R] [DenselyOrdered R]
+    {ι : Type*} [Fintype ι] (f : ι → (StieltjesFunction R))
+    (hf : ∀ i, Monotone (f i))
+    (hf' : ∀ i, ∀ (x : R), ContinuousWithinAt (f i) (Set.Ici x) x) :
+    (∑ i ∈ Finset.univ, f i) = {
     toFun := fun a => ∑ i, (f i) a,
     mono' := by
       conv =>
         arg 1
         equals (fun a => (∑ i, (f i) a)) =>
           ext x
-          simp
-           
+          rfl
       apply monotone_finest_sum _ hf
     right_continuous' := by
       classical
       intro x
       refine Finset.induction_on Finset.univ ?_ ?_
-      . 
-        simp
+      · simp only [sum_empty]
         fun_prop
-      . intro i s hi hs
+      · intro i s hi hs
         simp_rw [Finset.sum_insert hi]
         apply ContinuousWithinAt.add
-        . 
-          apply hf'
-        . apply hs
+        · apply hf'
+        · apply hs
   } := by
-  
   ext x
-  simp
+  simp only []
   classical
   refine Finset.induction_on Finset.univ ?_ ?_
-  . 
-    simp
-  . intro i s hi hs
+  · simp only [sum_empty]
+    rfl
+  · intro i s hi hs
     rw [Finset.sum_insert hi]
-    simp
-    rw [Finset.sum_insert hi]
-    simp
-    exact hs
+    simp only [StieltjesFunction.add_apply]
+    rw [Finset.sum_insert hi, hs]
     
       
 
@@ -174,22 +161,20 @@ lemma StieltjesFunction.finset_sum
 --       rw [Finset.sum_insert ha]
 
 
-lemma theta_sub_eq (k: ℕ): (θ (↑k + 1) - θ ↑k) = if Nat.Prime (k + 1) then Real.log (↑k + 1) else 0  := by
-  rw [Chebyshev.theta_eq_sum_Icc]
-  rw [Chebyshev.theta_eq_sum_Icc]
-  simp
-  simp [Nat.floor_add_one]
-  rw [Finset.sum_filter]
-  rw [Finset.sum_filter]
-  rw [Finset.sum_Icc_succ_top]
-  simp
-  simp
+lemma theta_sub_eq (k : ℕ) :
+    (θ (↑k + 1) - θ ↑k) = if Nat.Prime (k + 1) then Real.log (↑k + 1) else 0 := by
+  rw [Chebyshev.theta_eq_sum_Icc, Chebyshev.theta_eq_sum_Icc]
+  simp only [floor_natCast, Nat.floor_add_one (by positivity : (0 : ℝ) ≤ k)]
+  rw [Finset.sum_filter, Finset.sum_filter, Finset.sum_Icc_succ_top]
+  · simp only [Nat.cast_add, Nat.cast_one]
+    ring_nf
+  · omega
 
-lemma theta_one: θ 1 = 0 := by
-  simp [theta]
+lemma theta_one : θ 1 = 0 := by
+  simp only [theta, Nat.floor_one]
   rw [Finset.sum_filter]
-  repeat rw [Finset.sum_Ioc_succ_top]
-  simp
+  simp only [Finset.Ioc_eq_cons_Ioo (by omega : 0 < 1), Finset.Ioo_self, Finset.cons_empty,
+    Finset.sum_singleton, Nat.not_prime_one, ↓reduceIte]
   
 lemma theta_two: θ 2 = Real.log 2 := by
   simp [theta]
@@ -232,82 +217,111 @@ lemma leftlim_theta_k_eq (k: ℕ): Function.leftLim (θ) (↑k + 1) = θ ↑k :=
   (proof := /-- This follows from the definition of the Stieltjes integral. -/)
   (latexEnv := "sublemma")
   (discussion := 599)]
-theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x + 1))) (hx : 2 ≤ x) :
+theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x + 1)))  (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
+  
+      
   rw [← (MeasureTheory.Integrable.hasSum_intervalIntegral _ 0).tsum_eq]
-  ·
+  .
     rw [tsum_of_nat_of_neg_add_one]
-    ·
+    . 
       conv =>
         rhs
         rhs
         arg 1
         intro n
-        rw [intervalIntegral.integral_of_le (by simp),
-            MeasureTheory.setIntegral_measure_zero _ (by
+        rw [intervalIntegral.integral_of_le (by simp)]
+        rw [MeasureTheory.setIntegral_measure_zero _ (by
           simp
           apply MeasureTheory.measure_inter_null_of_null_left
-          simp [«θ».Stieltjes, theta]
+          simp [«θ».Stieltjes]
+          simp [theta]
           rw [Finset.Ioc_eq_empty_of_le]
-          · simp
+          . 
+            simp
             rw [Finset.Ioc_eq_empty_of_le]
-            · simp
-            · simp
+            . simp
+            . simp
               linarith
-          · simp
+          . 
+            simp
             linarith
         )]
       simp
       rw [tsum_eq_sum' (s := Finset.Ico 1 ⌊x⌋₊)]
-      ·
+      . 
+        
         conv =>
           rhs
           arg 2
           intro k
           rw [intervalIntegral.integral_congr_ae_restrict (g := fun _ => (f (k + 1)) / (Real.log (k + 1))) (by
+            -- StieltjesFunction.measure_Ioc
             rw [Set.uIoc_of_le (by simp)]
             conv =>
+              
               pattern Set.Ioc _ _
-              equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} => simp
+              equals (Set.Ioo ↑k ↑(k + 1)) ∪ {↑(k + 1)} =>
+                simp
+                
+
+            
             rw [MeasureTheory.ae_restrict_union_eq]
             unfold Filter.EventuallyEq
-            rw [Filter.eventually_sup, ← Filter.EventuallyEq]
+            rw [Filter.eventually_sup]
+            rw [← Filter.EventuallyEq]
             refine ⟨?_, ?_⟩
-            · unfold Filter.EventuallyEq
-              rw [MeasureTheory.ae_iff, MeasureTheory.Measure.restrict_apply', Set.inter_comm]
+            . 
+              unfold Filter.EventuallyEq
+              rw [MeasureTheory.ae_iff]
+              
+              rw [MeasureTheory.Measure.restrict_apply']
+              rw [Set.inter_comm]
               apply MeasureTheory.measure_inter_null_of_null_left
-              · rw [MeasureTheory.Measure.restrict_apply']
-                · apply MeasureTheory.measure_inter_null_of_null_left
-                  simp [«θ».Stieltjes]
-                  rw [leftlim_theta_k_eq]
-                · simp
-              · simp
-            ·
+              . 
+                rw [MeasureTheory.Measure.restrict_apply']
+                .
+                  apply MeasureTheory.measure_inter_null_of_null_left
+                  . 
+                    simp [«θ».Stieltjes]
+                    rw [leftlim_theta_k_eq]
+                . simp
+              . 
+                simp
+            .
               rw [Measure.restrict_restrict (by simp)]
               by_cases k_succ_mem: ↑k + (1: ℝ) ∈ Set.Icc (2: ℝ) x
-              · conv =>
+              . 
+                conv =>
                   arg 2
                   arg 1
                   arg 2
                   simp [Set.singleton_inter_of_mem k_succ_mem]
-                simp [«θ».Stieltjes, leftlim_theta_k_eq, theta_sub_eq]
+                simp [«θ».Stieltjes]
+                simp [leftlim_theta_k_eq]
+                simp [theta_sub_eq]
                 split_ifs
-                · rw [MeasureTheory.Measure.ae_smul_measure_iff]
-                  · simp
-                  · simp
+                . 
+                  rw [MeasureTheory.Measure.ae_smul_measure_iff]
+                  . simp
+                  . simp
                     rename_i k_prime
                     have foo := k_prime.two_le
                     apply Real.log_pos
                     simp
                     grind
-                · simp
-              · rw [Set.singleton_inter_of_notMem]
-                · simp
-                · simp
+                . simp
+              . 
+                rw [Set.singleton_inter_of_notMem]
+                . simp
+                . 
+                  simp
                   simp at k_succ_mem
                   grind
           )]
+        
+        
         simp_rw [intervalIntegral.integral_const']
         simp
         nth_rw 2 [← Finset.sum_coe_sort]
@@ -318,7 +332,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           arg 1
           equals if Nat.Prime (y + 1) then Real.log (↑y + 1) else 0 =>
             by_cases y_eq: y.val = 1
-            ·
+            . 
               simp [y_eq]
               norm_num
               conv =>
@@ -331,32 +345,39 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                   rw [Finset.mem_Ico] at foo
                   grind
               rw [Measure.real_def]
-              simp [«θ».Stieltjes, theta_two]
+              simp [«θ».Stieltjes]
+              simp [theta_two]
               conv =>
                 lhs
                 arg 1
                 arg 1
                 rhs
                 arg 2
-                equals ↑(1: ℕ) + (1: ℝ) => norm_num
+                equals ↑(1: ℕ) + (1: ℝ) =>
+                  norm_num
               rw [leftlim_theta_k_eq]
               simp [theta_one]
               rw [ENNReal.toReal_ofReal]
-              · simp [Nat.prime_two]
-              · apply Real.log_nonneg
+              .
+                simp [Nat.prime_two]
+              . apply Real.log_nonneg
                 simp
-            ·
-              rw [Measure.real_def, MeasureTheory.measure_eq_measure_of_null_diff (t := Set.Ioc (↑↑y) (↑↑y + 1))]
-              · simp [«θ».Stieltjes, theta_sub_eq]
+            .
+              rw [Measure.real_def]
+              rw [MeasureTheory.measure_eq_measure_of_null_diff (t := Set.Ioc (↑↑y) (↑↑y + 1))]
+              . 
+                simp [«θ».Stieltjes]
+                simp [theta_sub_eq]
                 split_ifs
-                · apply Real.log_nonneg
+                .
+                  apply Real.log_nonneg
                   simp
-                · simp
-              · simp
-              ·
+                . simp
+              . simp
+              . 
                 simp
                 by_cases y_lt: y.val < (⌊x⌋₊)
-                ·
+                . 
                   conv =>
                     arg 1
                     arg 2
@@ -370,9 +391,13 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                         norm_cast
                         omega
                       refine ⟨?_, ?_⟩
-                      · grw [y_lt]
+                      . 
+                        grw [y_lt]
                         linarith
-                      · grw [hb]
+                      . 
+                        
+                        
+                        grw [hb]
                         rename_i bar
                         rw [← Nat.add_one_le_iff] at bar
                         norm_cast
@@ -380,36 +405,51 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                         apply Nat.floor_le
                         linarith
                   simp
-                ·
+                .
                   have y_prop := y.prop
                   rw [Finset.mem_Ico] at y_prop
-                  conv =>
+
+                  conv => 
                     arg 1
                     arg 2
                     equals Set.Ioc (↑⌊x⌋₊) x =>
                       ext a
                       rw [Set.mem_diff]
                       refine ⟨?_, ?_⟩
-                      · intro ha
+                      . 
+                        intro ha
                         simp
                         simp at ha
                         refine ⟨?_, ?_⟩
-                        · simp at y_lt
+                        . 
+                          simp at y_lt
                           grw [y_lt]
                           linarith
-                        · grw [ha.1.2]
+                        . 
+                          
+                          
+                          grw [ha.1.2]
                           have foo := y_prop.2
                           apply Nat.lt_of_lt_floor at foo
                           omega
-                      · intro ha
+                      . intro ha
                         simp at ha
                         simp
                         refine ⟨?_, ?_⟩
-                        · refine ⟨?_, by grind⟩
+                        . 
+                          refine ⟨?_, by grind⟩
                           linarith
-                        · intro ha
+                        . intro ha
                           grind
-                  simp [«θ».Stieltjes, theta_eq_theta_coe_floor]
+                  simp [«θ».Stieltjes]
+                  simp [theta_eq_theta_coe_floor]
+                    
+                
+          
+      
+          
+          
+        
         simp only [ite_mul, zero_mul]
         conv =>
           rhs
@@ -425,8 +465,10 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
               rw [Finset.mem_Ico] at foo
               omega
             field_simp [foo]
-        rw [Finset.sum_coe_sort (f := fun y => (if Nat.Prime (y + 1) then (f (↑y + 1)) else 0)),
-            Finset.sum_Ico_eq_sum_range]
+          
+        rw [Finset.sum_coe_sort (f := fun y => (if Nat.Prime (y + 1) then (f (↑y + 1)) else 0))]
+        
+        rw [Finset.sum_Ico_eq_sum_range]
         simp
         norm_cast
         ring
@@ -434,7 +476,10 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           rhs
           arg 1
           arg 1
-          equals ⌊x⌋₊ + 1 - 2 => simp
+          equals  ⌊x⌋₊ + 1 - 2 =>
+            simp
+        
+        
         rw [← Finset.sum_Ico_eq_sum_range (m := 2) (f := fun x => if Nat.Prime (x) then f ↑(x) else 0)]
         conv =>
           rhs
@@ -442,6 +487,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
           equals Finset.Icc 2 ⌊x⌋₊ =>
             ext a
             simp
+        
         rw [Finset.sum_filter]
         simp [Finset.Iic_eq_Icc]
         conv =>
@@ -455,27 +501,38 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
             intro a ha a_not
             simp at a_not
             simp at ha
-            have a_lt: a < 2 := by omega
+            have a_lt: a < 2 := by
+              omega
+            
             have not_prime : ¬ Nat.Prime a := by
               by_cases a_eq: a = 0
-              · simp [a_eq]
+              . 
+                simp [a_eq]
                 exact Nat.not_prime_zero
-              · by_cases a_eq: a = 1
-                · simp [a_eq]
+              . 
+                by_cases a_eq: a = 1
+                .
+                  simp [a_eq]
                   exact Nat.not_prime_one
-                · omega
+                .
+                  omega
+              
             simp [not_prime]
+            
           )]
-      ·
+      . 
         intro n hn
         simp at hn
-        rw [intervalIntegral.integral_of_le (by simp), ← ne_eq, ← abs_pos] at hn
+        rw [intervalIntegral.integral_of_le (by simp)] at hn
+        rw [← ne_eq] at hn
+        rw [← abs_pos] at hn
         grw [MeasureTheory.abs_integral_le_integral_abs] at hn
         rw [MeasureTheory.integral_pos_iff_support_of_nonneg_ae] at hn
-        ·
+        . 
           simp at hn
           by_cases n_eq: n = 0
-          · simp [n_eq] at hn
+          . 
+            simp [n_eq] at hn
             conv at hn =>
               pattern _ ∩ _
               rhs
@@ -485,6 +542,7 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
                 intro ha a_le other
                 linarith
             simp at hn
+          
           by_contra!
           conv at hn =>
             rhs
@@ -494,77 +552,95 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
               ext a
               simp
               refine ⟨?_, ?_⟩
-              · intro ha
+              . 
+                intro ha
                 refine ⟨by grind, ?_⟩
                 grind
-              · intro ha
+              . 
+                intro ha
                 refine ⟨?_, ?_⟩
-                · refine ⟨?_, ?_⟩
-                  · grind
-                  · simp only [coe_Ico, Set.mem_Ico, not_and_or] at this
+                . 
+                  refine ⟨?_, ?_⟩
+                  . 
+                    grind
+                  . 
+                    simp only [coe_Ico, Set.mem_Ico, not_and_or] at this
                     cases this
-                    · rename_i n_le
+                    . rename_i n_le
                       simp at n_le
                       simp [n_le]
                       simp [n_le] at ha
                       omega
-                    · rename_i n_le
+                    . rename_i n_le
                       simp at n_le
                       grw [ha.2]
                       grw [Nat.lt_floor_add_one (a := x)]
                       grw [n_le]
-                · refine ⟨?_, by grind⟩
+      
+                . 
+                  refine ⟨?_, by grind⟩
                   simp only [coe_Ico, Set.mem_Ico, not_and_or] at this
-                  have le_x: (2: ℕ) ≤ x := by norm_cast
+                  have le_x: (2: ℕ ) ≤ x := by
+                    norm_cast
+                  
                   apply Nat.le_floor at le_x
                   conv =>
                     lhs
-                    equals ↑(2: ℕ) => simp
+                    equals ↑(2: ℕ ) => simp
                   grw [le_x]
                   simp [n_eq] at this
                   grw [this]
                   linarith
-          have foo := MeasureTheory.measure_inter_null_of_null_right
-            ((Function.support fun a ↦ |f a / Real.log a|)) (μ := «θ».Stieltjes.measure) (T := Set.Ioc (↑n) x)
+          have foo := MeasureTheory.measure_inter_null_of_null_right ((Function.support fun a ↦ |f a / Real.log a|)) (μ :=  «θ».Stieltjes.measure) (T := Set.Ioc (↑n) x)
           have bar := foo.mt
           specialize bar (by grind)
           simp [«θ».Stieltjes] at bar
           simp at this
           specialize this (by omega)
           by_cases floor_eq: ⌊x⌋₊ = n
-          · simp [← floor_eq, theta_eq_theta_coe_floor] at bar
-          · simp at floor_eq
+          . 
+            simp [← floor_eq] at bar
+            simp [theta_eq_theta_coe_floor] at bar
+          . 
+            simp at floor_eq
             have floor_lt: ⌊x⌋₊ < n := by omega
             apply Nat.lt_of_floor_lt at floor_lt
             have other := theta_mono floor_lt.le
             linarith
-        · apply Filter.Eventually.of_forall
+        .
+          apply Filter.Eventually.of_forall
           intro y
           simp
-        · apply MeasureTheory.Integrable.of_integral_ne_zero
+        . 
+          apply MeasureTheory.Integrable.of_integral_ne_zero
           grind
-    · sorry
-    · sorry
-  ·
+    . 
+      sorry
+    . sorry
+  . 
     apply ContinuousOn.integrableOn_Icc
     intro a ha
     have a_ne: a ≠ 0 := by
       simp at ha
       linarith
     apply ContinuousWithinAt.div
-    · apply hf.mono (t := Set.Icc _ _)
-      · intro a ha
+    .
+      apply hf.mono (t := Set.Icc _ _)
+      . 
+        intro a ha
         simp
         simp at ha
         grind
-      · simpa using ha
-    · apply ContinuousAt.continuousWithinAt
+      . simpa using ha
+    . 
+      apply ContinuousAt.continuousWithinAt
       fun_prop (disch := assumption)
-    · simp
+    . 
+      simp
       refine ⟨?_, ?_, ?_⟩
-      · grind
-      · grind
-      · grind
+      . grind
+      . grind
+      . grind
 
 #print axioms pre_413
 
